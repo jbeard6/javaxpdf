@@ -15,3 +15,13 @@
 *.exe
 *.out
 *.app
+
+# Autoconf Output
+Makefile
+aconf.h
+config.status
+
+# Eclipse CDT
+.project
+.cproject
+.autotools
