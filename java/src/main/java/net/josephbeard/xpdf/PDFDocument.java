@@ -16,8 +16,12 @@ public final class PDFDocument {
 		return new PDFDocument(_handle);
 	}
 
-	private static final TemporaryFileService<PDFDocument> tempFileService = new TemporaryFileService<PDFDocument>(
-			"xpdf", ".pdf");
+	private static final TemporaryFileService<PDFDocument> tempFileService;
+
+	static {
+		tempFileService = new TemporaryFileService<PDFDocument>("xpdf", ".pdf");
+		tempFileService.start();
+	}
 
 	public static PDFDocument createInstance(InputStream inputStream)
 			throws IOException {

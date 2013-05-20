@@ -8,10 +8,12 @@
 #ifndef JAVAOBJECTWRAPPER_H_
 #define JAVAOBJECTWRAPPER_H_
 
+#include <jni.h>
+
 class JavaObjectWrapper {
 
 public:
-	JavaObjectWrapper(JNIEnv *env, jobject obj);
+	JavaObjectWrapper(JNIEnv *, jobject);
 	virtual ~JavaObjectWrapper();
 
 	JNIEnv *GetJNIEnv() { return env; }

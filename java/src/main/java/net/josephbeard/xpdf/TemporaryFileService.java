@@ -29,8 +29,7 @@ class TemporaryFileService<T> {
 
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
-	public TemporaryFileService(String prefix, String suffix,
-			int bufferSize) {
+	public TemporaryFileService(String prefix, String suffix, int bufferSize) {
 		if (prefix == null || suffix == null) {
 			throw new NullPointerException();
 		} else if (prefix.length() < 3) {
@@ -126,6 +125,59 @@ class TemporaryFileService<T> {
 		tempFileMap.put(reference, tempFile);
 		LOGGER.log(FINE, "Will remove {0} on garbage collection of {1}",
 				new Object[] { tempFile, object });
+	}
+
+	public void start() {
+		DeleteFileRunnable<T> runnable = new DeleteFileRunnable<T>(
+				deletionQueue, tempFileMap);
+		Thread thread = new Thread(runnable);
+		thread.setDaemon(true);
+		thread.start();
+	}
+
+	private static class DeleteFileRunnable<T> implements Runnable {
+
+		public DeleteFileRunnable(ReferenceQueue<T> queue,
+				Map<Reference<T>, File> fileMap) {
+			this.queue = queue;
+			this.fileMap = fileMap;
+		}
+
+		private final ReferenceQueue<T> queue;
+
+		private final Map<Reference<T>, File> fileMap;
+
+		@Override
+		public void run() {
+			try {
+				while (true) {
+					Reference<? extends T> reference = queue.remove();
+
+					File file = fileMap.get(reference);
+
+					if (file == null) {
+						LOGGER.log(WARNING,
+								"No cleanup requested for reference!",
+								reference);
+					} else if (!file.exists()) {
+						LOGGER.log(INFO, "\"{0}\" already removed.", file);
+					} else if (file.delete()) {
+						LOGGER.log(INFO, "Deleted \"{0}\".", file);
+					} else if (file.delete()) {
+						// Stranger things have happened...
+						LOGGER.log(INFO, "Deleted \"{0}\" on second attempt.",
+								file);
+					} else {
+						LOGGER.log(WARNING, "Failed to delete \"{0}\".  "
+								+ "Will attempt to delete on exit.", file);
+						file.deleteOnExit();
+					}
+				}
+			} catch (InterruptedException ex) {
+				LOGGER.log(FINE, "Exiting due to interruption.", ex);
+			}
+		}
+
 	}
 
 }
