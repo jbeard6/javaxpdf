@@ -19,6 +19,7 @@
 # Autoconf Output
 Makefile
 aconf.h
+configure
 config.status
 
 # Eclipse CDT
