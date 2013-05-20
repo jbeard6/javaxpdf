@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl Copyright 1998-2005 Glyph & Cog, LLC
 
-AC_PREREQ(2.57)
+AC_PREREQ(2.59)
 
-AC_INIT(xpdf/Gfx.cc)
+AC_INIT(libxpdf, 3.0.3)
 AC_CONFIG_HEADER(aconf.h)
 
 dnl ##### Optional features.
@@ -355,7 +355,13 @@ AC_SUBST(X)
 AC_SUBST(XPDF_TARGET)
 
 dnl ##### Write the makefiles.
-AC_OUTPUT(Makefile goo/Makefile fofi/Makefile splash/Makefile xpdf/Makefile)
+AC_CONFIG_FILES(Makefile
+                include/Makefile
+                goo/Makefile
+                fofi/Makefile
+                splash/Makefile
+                libxpdf/Makefile)
+AC_OUTPUT
 
 dnl ##### Warn user if X is missing.
 if test -n "$no_x" -o "x$smr_have_Xm_library" != xyes -o "x$smr_have_freetype2_library" != xyes; then
