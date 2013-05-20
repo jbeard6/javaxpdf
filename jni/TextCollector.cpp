@@ -13,7 +13,7 @@ TextCollector::TextCollector(JNIEnv *env, jobject obj) {
 }
 
 TextCollector::~TextCollector() {
-	object = NULL;
+	delete object;
 }
 
 void TextCollector::append(const char* text, int len) {

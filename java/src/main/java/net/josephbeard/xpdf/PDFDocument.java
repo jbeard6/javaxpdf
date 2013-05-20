@@ -1,13 +1,8 @@
 package net.josephbeard.xpdf;
 
-import static java.io.File.createTempFile;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class PDFDocument {
@@ -21,25 +16,19 @@ public final class PDFDocument {
 		return new PDFDocument(_handle);
 	}
 
+	private static final TemporaryFileService<PDFDocument> tempFileService = new TemporaryFileService<PDFDocument>(
+			"xpdf", ".pdf");
+
 	public static PDFDocument createInstance(InputStream inputStream)
 			throws IOException {
-		File tempFile = createTempFile("pdf", ".pdf");
+		File tempFile = tempFileService.createTemporaryFile(inputStream);
 
-		OutputStream outputStream = null;
-		try {
-			outputStream = new FileOutputStream(tempFile);
+		PDFDocument instance = createInstance(tempFile);
 
-			IOUtils.copy(inputStream, outputStream);
-		} finally {
-			try {
-				outputStream.close();
-			} catch (IOException ignore) {
-				LOGGER.log(Level.WARNING, "Failed to close OutputStream",
-						ignore);
-			}
-		}
+		// Delete file when garbage collected
+		tempFileService.cleanup(instance, tempFile);
 
-		return createInstance(tempFile);
+		return instance;
 	}
 
 	private static native long _createInstance(String fileName);
@@ -86,7 +75,7 @@ public final class PDFDocument {
 		PDFPage[] pages = new PDFPage[pageCount];
 
 		for (int i = 0; i < pageCount; i++) {
-			// FIXME Obtain the page object
+			pages[i] = _getPage(i);
 		}
 
 		return pages;

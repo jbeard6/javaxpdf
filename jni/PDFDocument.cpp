@@ -30,6 +30,8 @@ JNIEXPORT jobject JNICALL Java_net_josephbeard_xpdf_PDFDocument__1getPage
 {
 	PDFDoc *doc = getHandle<PDFDoc>(env, obj);
 	Page *page = doc->getCatalog()->getPage(pageNumber);
+
+	return createPdfPage(env, page);
 }
 
 JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_PDFDocument_finalize

@@ -1,0 +1,68 @@
+#========================================================================
+#
+# JNI Adapter Makefile
+#
+# Copyright 2013 Joseph Beard
+#
+#========================================================================
+
+SHELL = /bin/sh
+
+prefix = @prefix@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+XPDFSRCDIR = $(srcdir)/../xpdf/xpdf
+XPDFLIBDIR = ../xpdf/xpdf
+CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(FOFISRCDIR) -I$(SPLASHSRCDIR) -I$(srcdir) @freetype2_CFLAGS@ @Sgm_CFLAGS@ @Xm_CFLAGS@ @Xt_CFLAGS@ @Xp_CFLAGS@ @Xext_CFLAGS@ @Xpm_CFLAGS@ @t1_CFLAGS@ @libpaper_CFLAGS@ @X_CFLAGS@
+
+LDFLAGS = @LDFLAGS@
+
+
+OTHERLIBS = @LIBS@ \
+	-L$(XPDFLIBDIR) -lxpdf
+
+CXX = @CXX@
+
+LIBPREFIX = @LIBPREFIX@
+EXE = @EXE@
+
+#------------------------------------------------------------------------
+
+.SUFFIXES: .cpp
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+#------------------------------------------------------------------------
+
+CXX_SRC = \
+	$(srcdir)/JavaObjectWrapper.cpp \
+	$(srcdir)/PDFDocument.cpp \
+	$(srcdir)/PDFPage.cpp \
+	$(srcdir)/TextCollector.cpp
+
+#------------------------------------------------------------------------
+
+all: javaxpdf$(EXE)
+
+#------------------------------------------------------------------------
+
+JNI_OBJS = JavaObjectWrapper.o PDFDocument.o PDFPage.o TextCollector.o
+JNI_LIBS = -L$(GOOLIBDIR) -lGoo $(SPLASHLIBS) $(T1LIBS) $(FTLIBS) \
+	$(XLIBS) $(OTHERLIBS) -lm
+
+javaxpdf$(EXE): $(JNI_OBJS) $(XPDFLIBDIR)/$(LIBPREFIX)/xpdf.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o javaxpdf$(EXE) $(JNI_OBJS)
+
+#------------------------------------------------------------------------
+
+clean:
+	rm -f $(JNI_OBJS) javaxpdf$(EXE)
+
+#------------------------------------------------------------------------
+
+depend:
+	$(CXX) $(CXXFLAGS) -MM $(CXX_SRC) >Makefile.dep
+
+include Makefile.dep
