@@ -1,0 +1,87 @@
+#========================================================================
+#
+# JNI Adapter Makefile
+#
+# Copyright 2013 Joseph Beard
+#
+#========================================================================
+
+SHELL = /bin/sh
+
+prefix = @prefix@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+GOOSRCDIR = $(srcdir)/../goo
+GOOLIBDIR = ../goo
+FOFISRCDIR = $(srcdir)/../fofi
+FOFILIBDIR = ../fofi
+SPLASHSRCDIR = $(srcdir)/../splash
+SPLASHLIBDIR = ../splash
+XPDFSRCDIR = $(srcdir)/../xpdf
+XPDFLIBDIR = ../xpdf
+
+JDKHEADERS = @JDKHEADERS@
+
+CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(FOFISRCDIR) -I$(SPLASHSRCDIR) -I$(XPDFSRCDIR) -$(JDKHEADERS) -I$(srcdir) @freetype2_CFLAGS@ @Sgm_CFLAGS@ @Xm_CFLAGS@ @Xt_CFLAGS@ @Xp_CFLAGS@ @Xext_CFLAGS@ @Xpm_CFLAGS@ @t1_CFLAGS@ @libpaper_CFLAGS@ @X_CFLAGS@
+
+LDFLAGS = @LDFLAGS@
+
+T1LIBS = @t1_LIBS@
+FTLIBS = @freetype2_LIBS@
+
+OTHERLIBS = @LIBS@ \
+	-L$(GOOLIBDIR) -lGoo \
+	-L$(FOFILIBDIR) -lfofi \
+	-L$(SPLASHLIBDIR) -lsplash \
+	-L$(XPDFLIBDIR) -lxpdf
+
+CXX = @CXX@
+
+LIBPREFIX = @LIBPREFIX@
+EXE = @EXE@
+
+#------------------------------------------------------------------------
+
+.SUFFIXES: .cpp
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+#------------------------------------------------------------------------
+
+CXX_SRC = \
+	$(srcdir)/JavaObjectWrapper.cpp \
+	$(srcdir)/PDFDocument.cpp \
+	$(srcdir)/PDFPage.cpp \
+	$(srcdir)/TextCollector.cpp
+
+#------------------------------------------------------------------------
+
+all: $(LIBPREFIX)xpdf-jni.a
+
+#------------------------------------------------------------------------
+
+JNI_OBJS = \
+	JavaObjectWrapper.o PDFDocument.o PDFPage.o TextCollector.o \
+	$(XPDFLIBDIR)/$(LIBPREFIX)/xpdf.a
+
+JNI_LIBS = -$(T1LIBS) $(FTLIBS) $(XLIBS) $(OTHERLIBS) -lm \
+
+$(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS) $(XPDFLIBDIR)/$(LIBPREFIX)/xpdf.a
+	rm -f $(LIBPREFIX)xpdf-jni.a
+	$(AR) $(LIBPREFIX)xpdf-jni.a $(JNI_OBJS)
+	$(RANLIB) $(LIBPREFIX)xpdf-jni.a
+
+
+#------------------------------------------------------------------------
+
+clean:
+	rm -f $(JNI_OBJS) $(LIBPREFIX)xpdf-jni.a
+
+#------------------------------------------------------------------------
+
+depend:
+	$(CXX) $(CXXFLAGS) -MM $(CXX_SRC) >Makefile.dep
+
+include Makefile.dep

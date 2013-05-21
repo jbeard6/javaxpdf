@@ -354,8 +354,16 @@ fi
 AC_SUBST(X)
 AC_SUBST(XPDF_TARGET)
 
+dnl ##### Locate Java Native Interface
+AC_JNI_INCLUDE_DIR
+for JNI_INCLUDE_DIR in $JNI_INCLUDE_DIRS
+do
+  JDKHEADERS="$JDKHEADERS -I$JNI_INCLUDE_DIR"
+done
+AC_SUBST(JDKHEADERS)
+
 dnl ##### Write the makefiles.
-AC_OUTPUT(Makefile goo/Makefile fofi/Makefile splash/Makefile xpdf/Makefile)
+AC_OUTPUT(Makefile goo/Makefile fofi/Makefile splash/Makefile xpdf/Makefile jni/Makefile)
 
 dnl ##### Warn user if X is missing.
 if test -n "$no_x" -o "x$smr_have_Xm_library" != xyes -o "x$smr_have_freetype2_library" != xyes; then
