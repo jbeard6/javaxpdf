@@ -20,6 +20,8 @@
 Makefile
 aconf.h
 config.status
+config.log
+autom4te.cache
 
 # Eclipse CDT
 .project
