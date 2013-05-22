@@ -42,6 +42,7 @@ AR = @AR@
 RANLIB = @RANLIB@
 
 LIBPREFIX = @LIBPREFIX@
+EXE = @EXE@
 DLLEXT = @DLLEXT@
 
 #------------------------------------------------------------------------
@@ -62,7 +63,7 @@ CXX_SRC = \
 
 #------------------------------------------------------------------------
 
-all: $(LIBPREFIX)xpdf-jni.a $(LIBPREFIX)xpdf-jni$(DLLEXT)
+all: $(LIBPREFIX)xpdf-jni.a $(LIBPREFIX)xpdf-jni$(DLLEXT) test
 
 #------------------------------------------------------------------------
 
@@ -83,19 +84,28 @@ $(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS)
 #------------------------------------------------------------------------
 
 DLL_LIBS = \
-	$(LIBPREFIX)xpdf-jni.a \
-	$(XPDFLIBDIR)/$(LIBPREFIX)xpdf.a \
-	$(SPLASHLIBDIR)/$(LIBPREFIX)splash.a \
+	$(GOOLIBDIR)/$(LIBPREFIX)Goo.a \
 	$(FOFILIBDIR)/$(LIBPREFIX)fofi.a \
-	$(GOOLIBDIR)/$(LIBPREFIX)Goo.a
+	$(SPLASHLIBDIR)/$(LIBPREFIX)splash.a \
+	$(XPDFLIBDIR)/$(LIBPREFIX)xpdf.a \
+	$(LIBPREFIX)xpdf-jni.a
 
 $(LIBPREFIX)xpdf-jni$(DLLEXT): $(DLL_LIBS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ -Wl,--whole-archive $< -Wl,--no-whole-archive
 
 #------------------------------------------------------------------------
 
+TEST_OBJS = test.o
+
+test$(EXE): $(TEST_OBJS) $(LIBPREFIX)xpdf-jni$(DLLEXT)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ test.o -L. -lxpdf-jni
+
+#------------------------------------------------------------------------
+
 clean:
 	rm -f $(JNI_OBJS) $(LIBPREFIX)xpdf-jni.a
+	rm -f $(LIBPREFIX)xpdf-jni$(DLLEXT)
+	rm -f $(TEST_OBJS) test$(EXE)
 
 #------------------------------------------------------------------------
 
