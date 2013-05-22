@@ -1,16 +1,9 @@
+#include <jni.h>
 #include "Page.h"
 #include "TextOutputDev.h"
 #include "Handle.h"
+#include "TextCollector.h"
 #include "PDFPage.h"
-
-jobject createPdfPage(JNIEnv *env, Page *page) {
-	jclass pdfPageClass = env->FindClass("net/josephbeard/xpdf/PDFPage");
-	jmethodID constructor = env->GetMethodID(pdfPageClass, "<init>", "(J)V");
-
-	jlong _handle = getHandleFor<Page>(page);
-
-	return env->NewObject(pdfPageClass, constructor, _handle);
-}
 
 JNIEXPORT jint JNICALL Java_net_josephbeard_xpdf_PDFPage__1getNumber(
 		JNIEnv *env, jobject obj) {

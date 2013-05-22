@@ -26,7 +26,7 @@ LIBPREFIX = @LIBPREFIX@
 .SUFFIXES: .cc
 
 .cc.o:
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -fPIC -c $<
 
 #------------------------------------------------------------------------
 

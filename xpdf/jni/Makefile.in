@@ -21,9 +21,10 @@ SPLASHLIBDIR = ../splash
 XPDFSRCDIR = $(srcdir)/../xpdf
 XPDFLIBDIR = ../xpdf
 
+JAVA_HOME = @JAVA_HOME@
 JDKHEADERS = @JDKHEADERS@
 
-CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(FOFISRCDIR) -I$(SPLASHSRCDIR) -I$(XPDFSRCDIR) -$(JDKHEADERS) -I$(srcdir) @freetype2_CFLAGS@ @Sgm_CFLAGS@ @Xm_CFLAGS@ @Xt_CFLAGS@ @Xp_CFLAGS@ @Xext_CFLAGS@ @Xpm_CFLAGS@ @t1_CFLAGS@ @libpaper_CFLAGS@ @X_CFLAGS@
+CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(FOFISRCDIR) -I$(SPLASHSRCDIR) -I$(XPDFSRCDIR) $(JDKHEADERS) -I$(srcdir) @freetype2_CFLAGS@ @Sgm_CFLAGS@ @Xm_CFLAGS@ @Xt_CFLAGS@ @Xp_CFLAGS@ @Xext_CFLAGS@ @Xpm_CFLAGS@ @t1_CFLAGS@ @libpaper_CFLAGS@ @X_CFLAGS@
 
 LDFLAGS = @LDFLAGS@
 
@@ -37,16 +38,17 @@ OTHERLIBS = @LIBS@ \
 	-L$(XPDFLIBDIR) -lxpdf
 
 CXX = @CXX@
+AR = @AR@
+RANLIB = @RANLIB@
 
 LIBPREFIX = @LIBPREFIX@
-EXE = @EXE@
 
 #------------------------------------------------------------------------
 
 .SUFFIXES: .cpp
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -fPIC -c $<
 
 #------------------------------------------------------------------------
 
@@ -64,15 +66,19 @@ all: $(LIBPREFIX)xpdf-jni.a
 
 JNI_OBJS = \
 	JavaObjectWrapper.o PDFDocument.o PDFPage.o TextCollector.o \
-	$(XPDFLIBDIR)/$(LIBPREFIX)/xpdf.a
+	$(XPDFLIBDIR)/$(LIBPREFIX)xpdf.a
 
 JNI_LIBS = -$(T1LIBS) $(FTLIBS) $(XLIBS) $(OTHERLIBS) -lm \
 
-$(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS) $(XPDFLIBDIR)/$(LIBPREFIX)/xpdf.a
+$(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS)
 	rm -f $(LIBPREFIX)xpdf-jni.a
 	$(AR) $(LIBPREFIX)xpdf-jni.a $(JNI_OBJS)
 	$(RANLIB) $(LIBPREFIX)xpdf-jni.a
 
+#------------------------------------------------------------------------
+
+$(DLLPREFIX)xpdf-jni$(DLLEXT): $(LIBPREFIX)xpdf-jni.a
+	$(CXX) -o $@ $< -shared
 
 #------------------------------------------------------------------------
 

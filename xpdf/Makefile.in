@@ -17,7 +17,7 @@ datarootdir = @datarootdir@
 
 EXE = @EXE@
 
-all: goo fofi splash xpdf
+all: goo fofi splash xpdf jni
 
 goo: dummy
 	cd goo; $(MAKE)
@@ -46,6 +46,7 @@ clean:
 	cd @UP_DIR@fofi; $(MAKE) clean
 	cd @UP_DIR@splash; $(MAKE) clean
 	cd @UP_DIR@xpdf; $(MAKE) clean
+	cd @UP_DIR@jni; $(MAKE) clean
 	cd @UP_DIR@
 
 distclean: clean

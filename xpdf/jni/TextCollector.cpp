@@ -20,7 +20,7 @@ void TextCollector::append(const char* text, int len) {
 	object->GetJNIEnv()->NewStringUTF(text);
 }
 
-static void TextCollector::CollectText(void *stream, const char *text, int len) {
+void TextCollector::CollectText(void *stream, const char *text, int len) {
 	((TextCollector *) stream)->append(text, len);
 }
 

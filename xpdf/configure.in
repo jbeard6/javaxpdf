@@ -355,11 +355,15 @@ AC_SUBST(X)
 AC_SUBST(XPDF_TARGET)
 
 dnl ##### Locate Java Native Interface
-AC_JNI_INCLUDE_DIR
-for JNI_INCLUDE_DIR in $JNI_INCLUDE_DIRS
-do
-  JDKHEADERS="$JDKHEADERS -I$JNI_INCLUDE_DIR"
-done
+JDKHEADERS=""
+if test -n "$JAVA_HOME"
+then
+  JDKHEADERS='-I"$(JAVA_HOME)/include"'
+  
+  dnl ## FIXME Win32 platform specific!
+  JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/win32\""
+fi
+AC_SUBST(JAVA_HOME)
 AC_SUBST(JDKHEADERS)
 
 dnl ##### Write the makefiles.
