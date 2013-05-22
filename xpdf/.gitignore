@@ -17,6 +17,7 @@
 *.app
 
 # Autoconf Output
+configure
 Makefile
 aconf.h
 config.status
