@@ -361,13 +361,26 @@ AC_SUBST(XPDF_TARGET)
 dnl ##### Locate Java Native Interface
 AC_MSG_CHECKING([for Java Native Interface])
 JDKHEADERS=""
-if test -n "$JAVA_HOME"
+if test -d "$JAVA_HOME/include"
 then
   JDKHEADERS='-I"$(JAVA_HOME)/include"'
   AC_MSG_RESULT([yes])
   
-  dnl ## FIXME Win32 platform specific!
-  JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/win32\""
+  if test -d "$JAVA_HOME/include/win32"
+  then
+    dnl ## FIXME Win32 platform specific!
+    JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/win32\""
+  fi
+  
+  if test -d "$JAVA_HOME/include/linux"
+  then
+    JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/linux\""
+  fi
+  
+  if test -d "$JAVA_HOME/include/darwin"
+  then
+    JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/darwin\""
+  fi
 else
   AC_MSG_RESULT([no])
 fi
