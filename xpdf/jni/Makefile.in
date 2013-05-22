@@ -54,6 +54,7 @@ DLLEXT = @DLLEXT@
 #------------------------------------------------------------------------
 
 CXX_SRC = \
+	$(srcdir)/Handle.cpp \
 	$(srcdir)/JavaObjectWrapper.cpp \
 	$(srcdir)/PDFDocument.cpp \
 	$(srcdir)/PDFPage.cpp \
@@ -61,15 +62,18 @@ CXX_SRC = \
 
 #------------------------------------------------------------------------
 
-all: $(LIBPREFIX)xpdf-jni.a
+all: $(LIBPREFIX)xpdf-jni.a $(LIBPREFIX)xpdf-jni$(DLLEXT)
 
 #------------------------------------------------------------------------
 
 JNI_OBJS = \
-	JavaObjectWrapper.o PDFDocument.o PDFPage.o TextCollector.o \
-	$(XPDFLIBDIR)/$(LIBPREFIX)xpdf.a
+	Handle.o \
+	JavaObjectWrapper.o \
+	PDFDocument.o \
+	PDFPage.o \
+	TextCollector.o
 
-JNI_LIBS = -$(T1LIBS) $(FTLIBS) $(XLIBS) $(OTHERLIBS) -lm \
+JNI_LIBS = $(T1LIBS) $(FTLIBS) $(XLIBS) $(OTHERLIBS) -lm
 
 $(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS)
 	rm -f $(LIBPREFIX)xpdf-jni.a
@@ -78,8 +82,15 @@ $(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS)
 
 #------------------------------------------------------------------------
 
-$(LIBPREFIX)xpdf-jni$(DLLEXT): $(LIBPREFIX)xpdf-jni.a
-	$(CXX) $(CXXFLAGS) -o $@ $< $(JNI_LIBS) -shared
+DLL_LIBS = \
+	$(LIBPREFIX)xpdf-jni.a \
+	$(XPDFLIBDIR)/$(LIBPREFIX)xpdf.a \
+	$(SPLASHLIBDIR)/$(LIBPREFIX)splash.a \
+	$(FOFILIBDIR)/$(LIBPREFIX)fofi.a \
+	$(GOOLIBDIR)/$(LIBPREFIX)Goo.a
+
+$(LIBPREFIX)xpdf-jni$(DLLEXT): $(DLL_LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ -Wl,--whole-archive $< -Wl,--no-whole-archive
 
 #------------------------------------------------------------------------
 

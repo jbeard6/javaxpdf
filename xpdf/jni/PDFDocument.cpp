@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <PDFDoc.h>
+#include <Page.h>
 #include "Handle.h"
 #include "PDFDocument.h"
 
