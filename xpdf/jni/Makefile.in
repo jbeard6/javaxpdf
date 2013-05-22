@@ -42,6 +42,7 @@ AR = @AR@
 RANLIB = @RANLIB@
 
 LIBPREFIX = @LIBPREFIX@
+DLLEXT = @DLLEXT@
 
 #------------------------------------------------------------------------
 
@@ -77,8 +78,8 @@ $(LIBPREFIX)xpdf-jni.a: $(JNI_OBJS)
 
 #------------------------------------------------------------------------
 
-$(DLLPREFIX)xpdf-jni$(DLLEXT): $(LIBPREFIX)xpdf-jni.a
-	$(CXX) -o $@ $< -shared
+$(LIBPREFIX)xpdf-jni$(DLLEXT): $(LIBPREFIX)xpdf-jni.a
+	$(CXX) $(CXXFLAGS) -o $@ $< $(JNI_LIBS) -shared
 
 #------------------------------------------------------------------------
 

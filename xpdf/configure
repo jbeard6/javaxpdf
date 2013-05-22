@@ -633,6 +633,7 @@ CPP
 XMKMF
 UP_DIR
 AR
+DLLEXT
 LIBPREFIX
 EXE
 RANLIB
@@ -4028,6 +4029,7 @@ fi
 
 EXE=""
 LIBPREFIX="lib"
+DLLEXT=".so"
 AR="ar rc"
 UP_DIR=""
 
@@ -4059,6 +4061,7 @@ $as_echo "$xpdf_cv_sys_os2" >&6; }
 if test "$xpdf_cv_sys_os2" = yes; then
   EXE=".exe"
   LIBPREFIX=""
+  DLLEXT=".dll"
   AR="ar -rc"
 fi
 
@@ -4090,9 +4093,11 @@ $as_echo "$xpdf_cv_sys_dos" >&6; }
 if test "$xpdf_cv_sys_dos" = yes; then
   EXE=".exe"
   LIBPREFIX="lib"
+  DLLEXT=".dll"
   AR="ar -rc"
   UP_DIR="../"
 fi
+
 
 
 
@@ -7823,12 +7828,19 @@ fi
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Java Native Interface" >&5
+$as_echo_n "checking Java Native Interface... " >&6; }
 JDKHEADERS=""
 if test -n "$JAVA_HOME"
 then
   JDKHEADERS='-I"$(JAVA_HOME)/include"'
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: using Java Native Interface" >&5
+$as_echo "using Java Native Interface" >&6; }
 
     JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/win32\""
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Java Native Interface not found!" >&5
+$as_echo "$as_me: WARNING: Java Native Interface not found!" >&2;}
 fi
 
 

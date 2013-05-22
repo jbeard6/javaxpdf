@@ -64,6 +64,7 @@ AC_PROG_RANLIB
 dnl ##### Default values for Unix.
 EXE=""
 LIBPREFIX="lib"
+DLLEXT=".so"
 AR="ar rc"
 UP_DIR=""
 
@@ -76,6 +77,7 @@ xpdf_cv_sys_os2=yes, xpdf_cv_sys_os2=no)])
 if test "$xpdf_cv_sys_os2" = yes; then
   EXE=".exe"
   LIBPREFIX=""
+  DLLEXT=".dll"
   AR="ar -rc"
 fi
 
@@ -88,6 +90,7 @@ xpdf_cv_sys_dos=yes, xpdf_cv_sys_dos=no)])
 if test "$xpdf_cv_sys_dos" = yes; then
   EXE=".exe"
   LIBPREFIX="lib"
+  DLLEXT=".dll"
   AR="ar -rc"
   UP_DIR="../"
 fi
@@ -95,6 +98,7 @@ fi
 dnl ##### Do substitutions.
 AC_SUBST(EXE)
 AC_SUBST(LIBPREFIX)
+AC_SUBST(DLLEXT)
 AC_SUBST(AR)
 AC_SUBST(UP_DIR)
 
@@ -355,13 +359,17 @@ AC_SUBST(X)
 AC_SUBST(XPDF_TARGET)
 
 dnl ##### Locate Java Native Interface
+AC_MSG_CHECKING([for Java Native Interface])
 JDKHEADERS=""
 if test -n "$JAVA_HOME"
 then
   JDKHEADERS='-I"$(JAVA_HOME)/include"'
+  AC_MSG_RESULT([yes])
   
   dnl ## FIXME Win32 platform specific!
   JDKHEADERS="$JDKHEADERS -I\"\$(JAVA_HOME)/include/win32\""
+else
+  AC_MSG_RESULT([no])
 fi
 AC_SUBST(JAVA_HOME)
 AC_SUBST(JDKHEADERS)
