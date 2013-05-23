@@ -57,6 +57,7 @@ DLLEXT = @DLLEXT@
 CXX_SRC = \
 	$(srcdir)/Handle.cpp \
 	$(srcdir)/JavaObjectWrapper.cpp \
+	$(srcdir)/GlobalParameters.cpp \
 	$(srcdir)/PDFDocument.cpp \
 	$(srcdir)/PDFPage.cpp \
 	$(srcdir)/TextCollector.cpp
@@ -70,6 +71,7 @@ all: $(LIBPREFIX)xpdf-jni$(DLLEXT) test
 JNI_OBJS = \
 	Handle.o \
 	JavaObjectWrapper.o \
+	GlobalParameters.o \
 	PDFDocument.o \
 	PDFPage.o \
 	TextCollector.o
