@@ -17,7 +17,8 @@ TextCollector::~TextCollector() {
 }
 
 void TextCollector::append(const char* text, int len) {
-	object->GetJNIEnv()->NewStringUTF(text);
+	jstring jtext = object->GetJNIEnv()->NewStringUTF(text);
+	object->CallVoidMethod("append", "(Ljava/lang/String;)V", jtext);
 }
 
 void TextCollector::CollectText(void *stream, const char *text, int len) {
