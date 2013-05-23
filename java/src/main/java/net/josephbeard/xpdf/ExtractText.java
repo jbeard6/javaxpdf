@@ -4,7 +4,7 @@ import java.io.File;
 
 public class ExtractText {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InstantiationException {
 		File libraryFile = new File(args[0]);
 		System.load(libraryFile.getAbsolutePath());
 		// System.loadLibrary("xpdf-jni");
