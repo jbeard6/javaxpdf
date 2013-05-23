@@ -1,3 +1,4 @@
+#include <iostream>
 #include <jni.h>
 #include "Page.h"
 #include "TextOutputDev.h"
@@ -43,5 +44,6 @@ JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_PDFPage_finalize
   (JNIEnv *env, jobject obj)
 {
 	Page *page = getHandle<Page>(env, obj);
-	delete page;
+	std::cerr << "Ignoring request to delete page!" << std::endl;
+	//delete page;
 }

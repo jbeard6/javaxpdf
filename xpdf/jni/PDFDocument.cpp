@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <jni.h>
 #include <PDFDoc.h>
 #include <Page.h>
@@ -20,7 +21,14 @@ JNIEXPORT jlong JNICALL Java_net_josephbeard_xpdf_PDFDocument__1createInstance
 	GString *gFilePath = new GString(path);
 	PDFDoc *doc = new PDFDoc(gFilePath);
 
-	return getHandleFor(doc);
+	if (doc->isOk())
+	{
+		return getHandleFor(doc);
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 
