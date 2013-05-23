@@ -16,7 +16,7 @@ GOOLIBDIR = ../goo
 FOFISRCDIR = $(srcdir)/../fofi
 FOFILIBDIR = ../fofi
 
-CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(FOFISRCDIR) -I$(srcdir) @t1_CFLAGS@ @freetype2_CFLAGS@
+CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(FOFISRCDIR) -I$(srcdir) @t1_CFLAGS@ @freetype2_CFLAGS@ -fPIC
 
 CXX = @CXX@
 AR = @AR@

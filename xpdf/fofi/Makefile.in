@@ -14,7 +14,7 @@ VPATH = @srcdir@
 GOOSRCDIR = $(srcdir)/../goo
 GOOLIBDIR = ../goo
 
-CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(srcdir)
+CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(GOOSRCDIR) -I$(srcdir) -fPIC
 
 CXX = @CXX@
 AR = @AR@
@@ -27,7 +27,7 @@ LIBPREFIX = @LIBPREFIX@
 .SUFFIXES: .cc
 
 .cc.o:
-	$(CXX) $(CXXFLAGS) -fPIC -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 #------------------------------------------------------------------------
 

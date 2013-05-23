@@ -12,12 +12,19 @@
 using namespace std;
 
 int main (int argc, char** argv) {
-	GString *fileName = new GString("test.pdf");
+	for (int i = 1; i < argc; i++) {
+		const char *arg = argv[i];
+		cout << arg << ": ";
+		
+		GString *fileName = new GString(arg);
 
-	PDFDoc *doc = new PDFDoc(fileName);
-	if (doc->isOk()) {
-		cout << "Success!" << endl;
+		PDFDoc *doc = new PDFDoc(fileName);
+		if (doc->isOk()) {
+			cout << "Success!" << endl;
+		} else {
+			cout << "Failed!" << endl;
+		}
+
+		delete doc;
 	}
-
-	delete doc;
 }

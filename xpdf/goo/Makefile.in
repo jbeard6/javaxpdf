@@ -11,8 +11,8 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I.. -I$(srcdir)
-CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(srcdir)
+CFLAGS = @CFLAGS@ @DEFS@ -I.. -I$(srcdir) -fPIC 
+CXXFLAGS = @CXXFLAGS@ @DEFS@ -I.. -I$(srcdir) -fPIC 
 
 CC = @CC@
 CXX = @CXX@
@@ -26,7 +26,7 @@ LIBPREFIX = @LIBPREFIX@
 .SUFFIXES: .cc
 
 .cc.o:
-	$(CXX) $(CXXFLAGS) -fPIC -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 #------------------------------------------------------------------------
 
