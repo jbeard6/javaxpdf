@@ -1,6 +1,6 @@
 package net.josephbeard.xpdf;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINER;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ public final class PDFDocument {
 		long _handle = _createInstance(fileName);
 
 		if (_handle >= 0) {
-			LOGGER.log(INFO, "Created native PDFDoc instance @{0}", _handle);
+			LOGGER.log(FINER, "Created native PDFDoc instance @{0}", _handle);
 			return new PDFDocument(_handle);
 		} else {
 			throw new InstantiationException("XPDF Blows");
@@ -85,13 +85,13 @@ public final class PDFDocument {
 
 	public PDFPage[] getPages() {
 		int pageCount = _getPageCount();
-		LOGGER.log(INFO, "Document has {0} pages.", pageCount);
+		LOGGER.log(FINER, "Document has {0} pages.", pageCount);
 
 		PDFPage[] pages = new PDFPage[pageCount];
 
 		for (int i = 0; i < pageCount; i++) {
 			pages[i] = _getPage(i + 1);
-			LOGGER.log(INFO, "Successfully obtained Page {0}.", i);
+			LOGGER.log(FINER, "Successfully obtained Page {0}.", i);
 		}
 
 		return pages;
