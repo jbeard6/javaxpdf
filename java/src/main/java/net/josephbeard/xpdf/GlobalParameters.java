@@ -15,6 +15,9 @@ public class GlobalParameters {
 		if (INSTANCE == null) {
 			long _handle = _getInstance();
 			INSTANCE = new GlobalParameters(_handle);
+			
+			// Initialize with UTF-8 encoding
+			INSTANCE._setTextEncoding("UTF-8");
 		}
 
 		return INSTANCE;
