@@ -1,1 +1,13 @@
+# Maven output
+target
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# Execution output
+*.log
+
+# Swap files
 *.swp
