@@ -320,7 +320,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdftops.cc" />
     		</fileset>
@@ -337,11 +338,11 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
     		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdftotext.cc" />
     		</fileset>
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
     	</cpptasks:cc>
     </target>
 	
@@ -355,7 +356,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdfinfo.cc" />
     		</fileset>
@@ -372,7 +374,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdffonts.cc" />
     		</fileset>
@@ -389,7 +392,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdfdetach.cc" />
     		</fileset>
@@ -406,7 +410,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdfimages.cc" />
     		</fileset>
@@ -423,7 +428,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="Goo,fofi,splash,xpdf-X11" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="pdftoppm.cc" />
     		</fileset>
@@ -440,7 +446,8 @@
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="Goo,fofi,splash,xpdf-X11" />
+    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" type="static" />
+    		<cpptasks:syslibset libs="m,stdc++" />
     		<fileset dir="src/main/c++/xpdf">
 				<include name="xpdf.cc" />
     		</fileset>
