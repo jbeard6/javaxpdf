@@ -5,6 +5,7 @@ target
 .project
 .classpath
 .settings
+.cproject
 
 # Execution output
 *.log
