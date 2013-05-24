@@ -16,6 +16,7 @@
 	<property name="build.output.include" location="${build.output.dir}/include" />
 	<property name="build.output.lib" location="${build.output.dir}/lib" />
 	<property name="build.output.bin" location="${build.output.dir}/bin" />
+	<property name="build.output.classes" location="${build.output.dir}/classes" />
 
 
     <!-- ================================= 
@@ -298,6 +299,15 @@
     		</fileset>
     	</cpptasks:cc>
     </target>
+	
+	<!-- ================================= 
+          target: java              
+         ================================= -->
+    <target name="java" depends="init" description="Java Classes">
+    	<mkdir dir="${build.output.classes}" />
+        <javac srcdir="src/main/java" destdir="${build.output.classes}" debug="on" />
+    </target>
+
 
 	
 	<!-- ================================= 
