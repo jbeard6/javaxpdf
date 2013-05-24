@@ -6,6 +6,7 @@
  */
 
 #include <stddef.h>
+#include <string>
 #include "TextCollector.h"
 
 TextCollector::TextCollector(JNIEnv *env, jobject obj) {
@@ -17,7 +18,10 @@ TextCollector::~TextCollector() {
 }
 
 void TextCollector::append(const char* text, int len) {
-	jstring jtext = object->GetJNIEnv()->NewStringUTF(text);
+	std::string str (text, len);
+	jstring jtext = object->GetJNIEnv()->NewStringUTF(str.c_str());
+
+	//jstring jtext = object->GetJNIEnv()->NewStringUTF(text);
 	object->CallVoidMethod("append", "(Ljava/lang/String;)V", jtext);
 }
 
