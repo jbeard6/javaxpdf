@@ -202,8 +202,8 @@
     <target name="jni" depends="goo,fofi,splash,libxpdf" description="Builds the JNI library.">
         <mkdir dir="${build.output.objs}/jni" />
     	
-    	<echo level="warning">java.home=${java.home}</echo>
-    	<echo level="warning">-I${java.home}/include -I${java.home}/include/${java.platform}</echo>
+    	<echo level="debug">java.home=${java.home}</echo>
+    	<echo level="debug">-I${java.home}/include -I${java.home}/include/${java.platform}</echo>
     	
     	<cpptasks:cc outfile="${build.output.lib}/xpdf-jni" outtype="shared" debug="${build.debug}" objdir="${build.output.objs}/jni">
     		<cpptasks:includepath path="src/main/include/autoconf" />
