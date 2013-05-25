@@ -2,4 +2,4 @@
  * Java bindings for the XPDF library.
  */
 
-package net.josephbeard.xpdf;
+package com.foolabs.xpdf;

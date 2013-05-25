@@ -6,13 +6,13 @@
 #include "TextCollector.h"
 #include "PDFPage.h"
 
-JNIEXPORT jint JNICALL Java_net_josephbeard_xpdf_PDFPage__1getNumber(
+JNIEXPORT jint JNICALL Java_com_foolabs_xpdf_PDFPage__1getNumber(
 		JNIEnv *env, jobject obj) {
 	Page *page = getHandle<Page>(env, obj);
 	return (jint) page->getNum();
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_PDFPage__1getText(JNIEnv *env,
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage__1getText(JNIEnv *env,
 		jobject obj, jobject javaCollector, jboolean fixedPitch,
 		jboolean rawOrder) {
 	Page *page = getHandle<Page>(env, obj);
@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_PDFPage__1getText(JNIEnv *env,
 	delete outputDevice;
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_PDFPage_finalize
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage_finalize
   (JNIEnv *env, jobject obj)
 {
 	Page *page = getHandle<Page>(env, obj);

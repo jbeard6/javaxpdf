@@ -1,8 +1,8 @@
-package net.josephbeard.xpdf;
+package com.foolabs.xpdf;
 
 import java.io.File;
 
-import net.josephbeard.xpdf.GlobalParameters.EndOfLine;
+import com.foolabs.xpdf.GlobalParameters.EndOfLine;
 
 public class ExtractText {
 

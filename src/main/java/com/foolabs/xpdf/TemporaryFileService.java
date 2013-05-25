@@ -1,4 +1,4 @@
-package net.josephbeard.xpdf;
+package com.foolabs.xpdf;
 
 import static java.io.File.createTempFile;
 import static java.util.logging.Level.FINE;

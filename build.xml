@@ -191,15 +191,26 @@
 				<include name="XPDFTree.cc" if="x11" />
 				<include name="XPDFViewer.cc" if="x11" />
 				<include name="XpdfPluginAPI.cc" if="x11" />
-				<include name="XRef.cc" if="x11" />
+				<include name="XRef.cc" />
     		</fileset>
     	</cpptasks:cc>
     </target>
 	
+	
+	<!-- ================================= 
+          target: jni-headers              
+         ================================= -->
+	<target name="jni-headers" depends="java" description="Builds the JNI headers.">
+		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.GlobalParameters" outputFile="src/main/include/jni/GlobalParameters.h" />
+		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFDocument" outputFile="src/main/include/jni/PDFDocument.h" />
+		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFPage" outputFile="src/main/include/jni/PDFPage.h" />
+	</target>
+
+
 	<!-- ================================= 
           target: jni              
          ================================= -->
-    <target name="jni" depends="goo,fofi,splash,libxpdf" description="Builds the JNI library.">
+    <target name="jni" depends="goo,fofi,splash,libxpdf,jni-headers" description="Builds the JNI library.">
         <mkdir dir="${build.output.objs}/jni" />
     	
     	<echo level="debug">java.home=${java.home}</echo>

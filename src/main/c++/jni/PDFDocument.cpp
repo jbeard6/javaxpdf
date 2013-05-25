@@ -14,7 +14,7 @@ jobject createPdfPage(JNIEnv *env, Page *page) {
 	return env->NewObject(pdfPageClass, constructor, _handle);
 }
 
-JNIEXPORT jlong JNICALL Java_net_josephbeard_xpdf_PDFDocument__1createInstance
+JNIEXPORT jlong JNICALL Java_com_foolabs_xpdf_PDFDocument__1createInstance
   (JNIEnv *env, jclass cls, jstring fileName)
 {
 	const char *path = env->GetStringUTFChars(fileName, JNI_FALSE);
@@ -32,21 +32,21 @@ JNIEXPORT jlong JNICALL Java_net_josephbeard_xpdf_PDFDocument__1createInstance
 }
 
 
-JNIEXPORT jint JNICALL Java_net_josephbeard_xpdf_PDFDocument__1getPageCount
+JNIEXPORT jint JNICALL Java_com_foolabs_xpdf_PDFDocument__1getPageCount
   (JNIEnv *env, jobject obj)
 {
 	PDFDoc *doc = getHandle<PDFDoc>(env, obj);
 	return doc->getNumPages();
 }
 
-JNIEXPORT jboolean JNICALL Java_net_josephbeard_xpdf_PDFDocument__1isEncrypted
+JNIEXPORT jboolean JNICALL Java_com_foolabs_xpdf_PDFDocument__1isEncrypted
   (JNIEnv *env, jobject obj)
 {
 	PDFDoc *doc = getHandle<PDFDoc>(env, obj);
 	return doc->isEncrypted();
 }
 
-JNIEXPORT jobject JNICALL Java_net_josephbeard_xpdf_PDFDocument__1getPage
+JNIEXPORT jobject JNICALL Java_com_foolabs_xpdf_PDFDocument__1getPage
   (JNIEnv *env, jobject obj, jint pageNumber)
 {
 	PDFDoc *doc = getHandle<PDFDoc>(env, obj);
@@ -55,7 +55,7 @@ JNIEXPORT jobject JNICALL Java_net_josephbeard_xpdf_PDFDocument__1getPage
 	return createPdfPage(env, page);
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_PDFDocument_finalize
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFDocument_finalize
   (JNIEnv *env, jobject obj)
 {
 	PDFDoc *doc = getHandle<PDFDoc>(env, obj);

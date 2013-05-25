@@ -1,4 +1,4 @@
-package net.josephbeard.xpdf;
+package com.foolabs.xpdf;
 
 import static java.util.logging.Level.FINER;
 

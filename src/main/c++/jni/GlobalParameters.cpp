@@ -30,7 +30,7 @@ GBool JBooleanToGBool(jboolean value)
 	return gFalse;
 }
 
-JNIEXPORT jlong JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getInstance
+JNIEXPORT jlong JNICALL Java_com_foolabs_xpdf_GlobalParameters__1getInstance
   (JNIEnv *env, jclass cls)
 {
 	if (globalParams == NULL) {
@@ -42,21 +42,21 @@ JNIEXPORT jlong JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getInstance
 	return getHandleFor(globalParams);
 }
 
-JNIEXPORT jstring JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getTextEncoding
+JNIEXPORT jstring JNICALL Java_com_foolabs_xpdf_GlobalParameters__1getTextEncoding
   (JNIEnv *env, jobject obj)
 {
 	char *textEncoding = globalParams->getTextEncodingName()->getCString();
 	return env->NewStringUTF(textEncoding);
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1setTextEncoding
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_GlobalParameters__1setTextEncoding
   (JNIEnv *env, jobject obj, jstring jenc)
 {
 	const char *textEncName = env->GetStringUTFChars(jenc, JNI_FALSE);
 	globalParams->setTextEncoding(strdup(textEncName));
 }
 
-JNIEXPORT jstring JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getTextEOL
+JNIEXPORT jstring JNICALL Java_com_foolabs_xpdf_GlobalParameters__1getTextEOL
   (JNIEnv *env, jobject obj)
 {
 	EndOfLineKind eol = globalParams->getTextEOL();
@@ -83,7 +83,7 @@ JNIEXPORT jstring JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getTextEO
 	return env->NewStringUTF(result);
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1setTextEOL
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_GlobalParameters__1setTextEOL
   (JNIEnv *env, jobject obj, jstring jeol)
 {
 	const char *eol = env->GetStringUTFChars(jeol, JNI_FALSE);
@@ -95,31 +95,31 @@ JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1setTextEOL
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getTextPageBreaks
+JNIEXPORT jboolean JNICALL Java_com_foolabs_xpdf_GlobalParameters__1getTextPageBreaks
   (JNIEnv *env, jobject obj)
 {
 	return GBoolToJBoolean(globalParams->getTextPageBreaks());
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1setTextPageBreaks
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_GlobalParameters__1setTextPageBreaks
   (JNIEnv *env, jobject obj, jboolean pageBreaks)
 {
 	globalParams->setTextPageBreaks(JBooleanToGBool(pageBreaks));
 }
 
-JNIEXPORT jboolean JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1getErrQuiet
+JNIEXPORT jboolean JNICALL Java_com_foolabs_xpdf_GlobalParameters__1getErrQuiet
   (JNIEnv *env, jobject obj)
 {
 	return GBoolToJBoolean(globalParams->getErrQuiet());
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_GlobalParameters__1setErrQuiet
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_GlobalParameters__1setErrQuiet
   (JNIEnv *env, jobject obj, jboolean suppress)
 {
 	globalParams->setErrQuiet(JBooleanToGBool(suppress));
 }
 
-JNIEXPORT void JNICALL Java_net_josephbeard_xpdf_GlobalParameters_finalize
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_GlobalParameters_finalize
   (JNIEnv *env, jobject obj)
 {
 	delete globalParams;

@@ -1,4 +1,4 @@
-package net.josephbeard.xpdf;
+package com.foolabs.xpdf;
 
 public class TextCollector {
 
