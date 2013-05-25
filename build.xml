@@ -22,23 +22,13 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="init,goo,fofi,splash,libxpdf,utils" description="JNI bindings for the Xpdf project" />
+    <target name="all" depends="java,jni,utils" description="JNI bindings for the Xpdf project" />
 
-    <!-- ================================= 
-          target: all-no-x              
-         ================================= -->
-    <target name="all-no-x" depends="init,goo,fofi,splash,libxpdf,utils-no-x" description="JNI bindings for the Xpdf project" />
-	
 	<!-- ================================= 
           target: utils              
          ================================= -->
-    <target name="utils" depends="utils-no-x,pdftoppm,xpdf" description="Builds the executables." />
+    <target name="utils" depends="pdftops,pdftotext,pdfinfo,pdffonts,pdfdetach,pdfimages,pdftoppm,xpdf" description="Builds the executables." />
 	
-	<!-- ================================= 
-          target: utils-no-x              
-         ================================= -->
-    <target name="utils-no-x" depends="pdftops,pdftotext,pdfinfo,pdffonts,pdfdetach,pdfimages" description="Builds the (non-X) executables." />
-
 	
     <!-- - - - - - - - - - - - - - - - - - 
           target: init                      
@@ -196,74 +186,12 @@
 				<include name="TextOutputDev.cc" />
 				<include name="UnicodeMap.cc" />
 				<include name="UnicodeTypeTable.cc" />
-				<include name="XpdfPluginAPI.cc" />
-				<include name="XRef.cc" />
-    		</fileset>
-    	</cpptasks:cc>
-    </target>
-	
-	<!-- ================================= 
-          target: libxpdf-X11              
-         ================================= -->
-    <target name="libxpdf-X11" depends="goo,fofi,splash" description="Builds the xpdf static library.">
-        <mkdir dir="${build.output.objs}/xpdf" />
-    	
-    	<cpptasks:cc outfile="${build.output.lib}/xpdf-X11" outtype="static" debug="${build.debug}" objdir="${build.output.objs}/xpdf">
-    		<cpptasks:includepath path="src/main/include/autoconf" />
-    		<cpptasks:includepath path="src/main/include/goo" />
-    		<cpptasks:includepath path="src/main/include/fofi" />
-    		<cpptasks:includepath path="src/main/include/splash" />
-    		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<compilerarg value="-fPIC" />
-    		<fileset dir="src/main/c++/xpdf">
-				<include name="Annot.cc" />
-				<include name="Array.cc" />
-				<include name="BuiltinFont.cc" />
-				<include name="BuiltinFontTables.cc" />
-				<include name="CMap.cc" />
-				<include name="Catalog.cc" />
-				<include name="CharCodeToUnicode.cc" />
-				<include name="CoreOutputDev.cc" />
-				<include name="Decrypt.cc" />
-				<include name="Dict.cc" />
-				<include name="Error.cc" />
-				<include name="FontEncodingTables.cc" />
-				<include name="Function.cc" />
-				<include name="Gfx.cc" />
-				<include name="GfxFont.cc" />
-				<include name="GfxState.cc" />
-				<include name="GlobalParams.cc" />
-				<include name="ImageOutputDev.cc" />
-				<include name="JArithmeticDecoder.cc" />
-				<include name="JBIG2Stream.cc" />
-				<include name="JPXStream.cc" />
-				<include name="Lexer.cc" />
-				<include name="Link.cc" />
-				<include name="NameToCharCode.cc" />
-				<include name="Object.cc" />
-				<include name="OptionalContent.cc" />
-				<include name="Outline.cc" />
-				<include name="OutputDev.cc" />
-				<include name="PDFCore.cc" />
-				<include name="PDFDoc.cc" />
-				<include name="PDFDocEncoding.cc" />
-				<include name="PSOutputDev.cc" />
-				<include name="PSTokenizer.cc" />
-				<include name="Page.cc" />
-				<include name="Parser.cc" />
-				<include name="PreScanOutputDev.cc" />
-				<include name="SecurityHandler.cc" />
-				<include name="SplashOutputDev.cc" />
-				<include name="Stream.cc" />
-				<include name="TextOutputDev.cc" />
-				<include name="UnicodeMap.cc" />
-				<include name="UnicodeTypeTable.cc" />
-				<include name="XPDFApp.cc" />
-				<include name="XPDFCore.cc" />
-				<include name="XPDFTree.cc" />
-				<include name="XPDFViewer.cc" />
-				<include name="XpdfPluginAPI.cc" />
-				<include name="XRef.cc" />
+				<include name="XPDFApp.cc" if="x11" />
+				<include name="XPDFCore.cc" if="x11" />
+				<include name="XPDFTree.cc" if="x11" />
+				<include name="XPDFViewer.cc" if="x11" />
+				<include name="XpdfPluginAPI.cc" if="x11" />
+				<include name="XRef.cc" if="x11" />
     		</fileset>
     	</cpptasks:cc>
     </target>
@@ -421,7 +349,7 @@
 	<!-- ================================= 
           target: pdftoppm              
          ================================= -->
-    <target name="pdftoppm" depends="goo,fofi,splash,libxpdf-X11" description="Builds the pdftoppm executable.">
+    <target name="pdftoppm" depends="goo,fofi,splash,libxpdf" if="x11" description="Builds the pdftoppm executable.">
     	<cpptasks:cc outfile="${build.output.bin}/pdftoppm" outtype="executable" debug="${build.debug}" objdir="${build.output.objs}/xpdf">
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
@@ -439,7 +367,7 @@
 	<!-- ================================= 
           target: xpdf              
          ================================= -->
-    <target name="xpdf" depends="goo,fofi,splash,libxpdf-X11" description="Builds the xpdf executable.">
+    <target name="xpdf" depends="goo,fofi,splash,libxpdf" if="x11" description="Builds the xpdf executable.">
     	<cpptasks:cc outfile="${build.output.bin}/xpdf" outtype="executable" debug="${build.debug}" objdir="${build.output.objs}/xpdf">
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
