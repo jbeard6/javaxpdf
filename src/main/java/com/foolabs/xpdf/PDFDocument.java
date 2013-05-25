@@ -25,25 +25,6 @@ public final class PDFDocument {
 		}
 	}
 
-	private static final TemporaryFileService<PDFDocument> tempFileService;
-
-	static {
-		tempFileService = new TemporaryFileService<PDFDocument>("xpdf", ".pdf");
-		tempFileService.start();
-	}
-
-	public static PDFDocument createInstance(InputStream inputStream)
-			throws IOException, InstantiationException {
-		File tempFile = tempFileService.createTemporaryFile(inputStream);
-
-		PDFDocument instance = createInstance(tempFile);
-
-		// Delete file when garbage collected
-		tempFileService.cleanup(instance, tempFile);
-
-		return instance;
-	}
-
 	private static native long _createInstance(String fileName);
 
 	private PDFDocument(long _handle) {
