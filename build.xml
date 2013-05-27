@@ -5,7 +5,10 @@
      xpdf-jni    
      JNI bindings for the Xpdf project                                
      ====================================================================== -->
-<project name="xpdf-jni" default="all"  xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
+<project name="xpdf-jni" default="all"
+	xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks"
+	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
     <description>
             JNI bindings for the Xpdf project
     </description>
@@ -18,11 +21,18 @@
 	<property name="build.output.bin" location="${build.output.dir}/bin" />
 	<property name="build.output.classes" location="${build.output.dir}/classes" />
 
+	<property name="xpdf.groupId" value="com.foolabs.xpdf" />
+	<property name="xpdf.version" value="3.0.3" />
+	<property name="xpdf.vendor" value="Glyph &amp; Cog, LLC" />
+
+	<property name="xpdf.jni.artifactId" value="javaxpdf" />
+	<property name="xpdf.jni.version" value="0.1.0-SNAPSHOT" />
+
 
     <!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="java,jni,utils" description="JNI bindings for the Xpdf project" />
+    <target name="all" depends="java,jni,jar,utils" description="JNI bindings for the Xpdf project" />
 
 	<!-- ================================= 
           target: utils              
@@ -247,6 +257,61 @@
         <javac srcdir="src/main/java" destdir="${build.output.classes}" debug="on" />
     </target>
 
+
+	<!-- ================================= 
+          target: jar
+         ================================= -->
+    <target name="jar" depends="java" description="Construct Java Archive">
+		<jar destfile="${build.output.dir}/javaxpdf.jar">
+			<fileset dir="${build.output.classes}" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<section name="xpdf">
+					<attribute name="Implementation-Title" value="xpdf" />
+					<attribute name="Implementation-Version" value="${xpdf.version}" />
+					<attribute name="Implementation-Vendor" value="${xpdf.vendor}" />
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+
+	<!-- - - - - - - - - - - - - - - - - -
+		 target: init-maven
+		 - - - - - - - - - - - - - - - - - -->
+	<target name="init-maven" depends="init">
+		<artifact:pom id="javaxpdf-pom" groupId="${xpdf.groupId}" artifactId="${xpdf.jni.artifactId}" version="${xpdf.jni.version}" name="Xpdf Java Native Implementation">
+			<artifact:license name="GNU General Public License (GPL)" url="http://www.gnu.org/licenses/gpl.txt" />
+		</artifact:pom>
+	</target>
+
+	<!-- =================================
+		 target: pom
+		 ================================= -->
+	<target name="pom" depends="jar,init-maven" description="Generate the Maven POM">
+		<artifact:writepom pomRefId="javaxpdf-pom" file="${build.output.dir}/pom.xml" />
+	</target>
+
+	<!-- =================================
+		 target: install
+		 ================================= -->
+	<target name="install" depends="install-jar,install-utils" description="Install" />
+
+	<!-- =================================
+		 target: install-jar
+		 ================================= -->
+	<target name="install-jar" depends="jar,pom" description="Install JAR to local repository.">
+		<artifact:install file="${build.output.dir}/javaxpdf.jar">
+			<artifact:pom file="${build.output.dir}/pom.xml" />
+		</artifact:install>
+	</target>
+
+	<!-- =================================
+		 target: install-utils
+		 ================================= -->
+	<target name="install-utils" depends="utils" description="Install binaries.">
+		<fail message="Not yet implemented." />
+	</target>
 
 	
 	<!-- ================================= 
