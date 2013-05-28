@@ -6,7 +6,7 @@
 #include "PDFDocument.h"
 
 jobject createPdfPage(JNIEnv *env, Page *page) {
-	jclass pdfPageClass = env->FindClass("net/josephbeard/xpdf/PDFPage");
+	jclass pdfPageClass = env->FindClass("com/foolabs/xpdf/PDFPage");
 	jmethodID constructor = env->GetMethodID(pdfPageClass, "<init>", "(J)V");
 
 	jlong _handle = getHandleFor<Page>(page);
