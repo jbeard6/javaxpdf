@@ -211,9 +211,12 @@
           target: jni-headers              
          ================================= -->
 	<target name="jni-headers" depends="java" description="Builds the JNI headers.">
-		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.GlobalParameters" outputFile="src/main/include/jni/GlobalParameters.h" />
-		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFDocument" outputFile="src/main/include/jni/PDFDocument.h" />
-		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFPage" outputFile="src/main/include/jni/PDFPage.h" />
+		<mkdir dir="${build.output.include}" />
+		<mkdir dir="${build.output.include}/jni" />
+
+		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.GlobalParameters" outputFile="${build.output.include}/jni/GlobalParameters.h" />
+		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFDocument" outputFile="${build.output.include}/jni/PDFDocument.h" />
+		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFPage" outputFile="${build.output.include}/jni/PDFPage.h" />
 	</target>
 
 
@@ -233,6 +236,7 @@
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
     		<cpptasks:includepath path="src/main/include/jni" />
+			<cpptasks:includepath path="${build.output.include}/jni" />
     		<cpptasks:sysincludepath path="${java.include}" />
     		<cpptasks:sysincludepath path="${java.include}/${java.platform}" />
     		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
