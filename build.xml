@@ -284,16 +284,7 @@
 		 target: init-maven
 		 - - - - - - - - - - - - - - - - - -->
 	<target name="init-maven" depends="init">
-		<artifact:pom id="javaxpdf-pom" groupId="${xpdf.groupId}" artifactId="${xpdf.jni.artifactId}" version="${xpdf.jni.version}" name="Xpdf Java Native Implementation">
-			<artifact:license name="GNU General Public License (GPL)" url="http://www.gnu.org/licenses/gpl.txt" />
-		</artifact:pom>
-	</target>
-
-	<!-- =================================
-		 target: pom
-		 ================================= -->
-	<target name="pom" depends="jar,init-maven" description="Generate the Maven POM">
-		<artifact:writepom pomRefId="javaxpdf-pom" file="${build.output.dir}/pom.xml" />
+		<artifact:pom id="javaxpdf-pom" file="pom.xml" />
 	</target>
 
 	<!-- =================================
@@ -304,9 +295,9 @@
 	<!-- =================================
 		 target: install-jar
 		 ================================= -->
-	<target name="install-jar" depends="jar,pom" description="Install JAR to local repository.">
+	<target name="install-jar" depends="jar,init-maven" description="Install JAR to local repository.">
 		<artifact:install file="${build.output.dir}/javaxpdf.jar">
-			<artifact:pom file="${build.output.dir}/pom.xml" />
+			<artifact:pom file="pom.xml" />
 		</artifact:install>
 	</target>
 
