@@ -12,17 +12,16 @@ JNIEXPORT jint JNICALL Java_com_foolabs_xpdf_PDFPage__1getNumber(
 	return (jint) page->getNum();
 }
 
-JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage__1getText(JNIEnv *env,
-		jobject obj, jobject javaCollector, jboolean fixedPitch,
-		jboolean rawOrder) {
+JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage__1getText
+	  (JNIEnv *env, jobject obj, jobject javaCollector, jboolean physicalLayout, jdouble fixedPitch, jboolean rawOrder) {
 	Page *page = getHandle<Page>(env, obj);
 	TextCollector *collector = new TextCollector(env, javaCollector);
 
-	GBool gFixedPitch = fixedPitch ? gTrue : gFalse;
+	GBool gPhysicalLayout = physicalLayout ? gTrue : gFalse;
 	GBool gRawOrder = rawOrder ? gTrue : gFalse;
 
 	TextOutputDev *outputDevice = new TextOutputDev(&TextCollector::CollectText,
-			collector, gFalse, gFixedPitch, gRawOrder);
+			collector, gPhysicalLayout, fixedPitch, gRawOrder);
 
 	if (outputDevice->isOk()) {
 		const double hDPI = 72;
