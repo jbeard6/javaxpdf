@@ -18,11 +18,16 @@ TextCollector::~TextCollector() {
 }
 
 void TextCollector::append(const char* text, int len) {
-	std::string str (text, len);
-	jstring jtext = object->GetJNIEnv()->NewStringUTF(str.c_str());
+	const jbyte *fsck = (const jbyte*) text; // What could possibly go wrong?
 
-	//jstring jtext = object->GetJNIEnv()->NewStringUTF(text);
-	object->CallVoidMethod("append", "(Ljava/lang/String;)V", jtext);
+	jbyteArray data = object->GetJNIEnv()->NewByteArray(len);
+	if (data != NULL)
+	{
+		object->GetJNIEnv()->SetByteArrayRegion(data, 0, len, fsck);
+		object->CallVoidMethod("append", "([B)V", data);
+	}
+
+	object->GetJNIEnv()->DeleteLocalRef(data);
 }
 
 void TextCollector::CollectText(void *stream, const char *text, int len) {
