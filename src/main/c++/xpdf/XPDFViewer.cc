@@ -134,7 +134,7 @@
 //------------------------------------------------------------------------
 
 struct ZoomMenuInfo {
-  const char *label;
+  char *label;
   double zoom;
 };
 
@@ -159,7 +159,7 @@ static ZoomMenuInfo zoomMenuInfo[nZoomMenuItems] = {
 
 //------------------------------------------------------------------------
 
-#define cmdMaxArgs 8
+#define cmdMaxArgs 2
 
 XPDFViewerCmd XPDFViewer::cmdTab[] = {
   { "about",                   0, gFalse, gFalse, &XPDFViewer::cmdAbout },
@@ -205,8 +205,6 @@ XPDFViewerCmd XPDFViewer::cmdTab[] = {
   { "raise",                   0, gFalse, gFalse, &XPDFViewer::cmdRaise },
   { "redraw",                  0, gTrue,  gFalse, &XPDFViewer::cmdRedraw },
   { "reload",                  0, gTrue,  gFalse, &XPDFViewer::cmdReload },
-  { "rotateCCW",               0, gTrue,  gFalse, &XPDFViewer::cmdRotateCCW },
-  { "rotateCW",                0, gTrue,  gFalse, &XPDFViewer::cmdRotateCW },
   { "run",                     1, gFalse, gFalse, &XPDFViewer::cmdRun },
   { "scrollDown",              1, gTrue,  gFalse, &XPDFViewer::cmdScrollDown },
   { "scrollDownNextPage",      1, gTrue,  gFalse, &XPDFViewer::cmdScrollDownNextPage },
@@ -222,7 +220,6 @@ XPDFViewerCmd XPDFViewer::cmdTab[] = {
   { "scrollToTopLeft",         0, gTrue,  gFalse, &XPDFViewer::cmdScrollToTopLeft },
   { "scrollUp",                1, gTrue,  gFalse, &XPDFViewer::cmdScrollUp },
   { "scrollUpPrevPage",        1, gTrue,  gFalse, &XPDFViewer::cmdScrollUpPrevPage },
-  { "setSelection",            5, gTrue,  gFalse, &XPDFViewer::cmdSetSelection },
   { "singlePageMode",          0, gFalse, gFalse, &XPDFViewer::cmdSinglePageMode },
   { "startPan",                0, gTrue,  gTrue,  &XPDFViewer::cmdStartPan },
   { "startSelection",          0, gTrue,  gTrue,  &XPDFViewer::cmdStartSelection },
@@ -362,15 +359,9 @@ XPDFViewer::XPDFViewer(XPDFApp *appA, PDFDoc *doc, int pageA,
 
 XPDFViewer::~XPDFViewer() {
   delete core;
-  if (aboutBigFont) {
-    XmFontListFree(aboutBigFont);
-  }
-  if (aboutVersionFont) {
-    XmFontListFree(aboutVersionFont);
-  }
-  if (aboutFixedFont) {
-    XmFontListFree(aboutFixedFont);
-  }
+  XmFontListFree(aboutBigFont);
+  XmFontListFree(aboutVersionFont);
+  XmFontListFree(aboutFixedFont);
   closeWindow();
 #ifndef DISABLE_OUTLINE
   if (outlineLabels) {
@@ -405,27 +396,22 @@ void XPDFViewer::clear() {
 
   core->clear();
 
-  // set up title
+  // set up title, number-of-pages display
   title = app->getTitle() ? app->getTitle()->getCString()
                           : (char *)xpdfAppName;
   XtVaSetValues(win, XmNtitle, title, XmNiconName, title, NULL);
+  s = XmStringCreateLocalized("");
+  XtVaSetValues(pageNumText, XmNlabelString, s, NULL);
+  XmStringFree(s);
+  s = XmStringCreateLocalized(" of 0");
+  XtVaSetValues(pageCountLabel, XmNlabelString, s, NULL);
+  XmStringFree(s);
 
-  if (toolBar != None) {
-
-    // set up number-of-pages display
-    s = XmStringCreateLocalized("");
-    XtVaSetValues(pageNumText, XmNlabelString, s, NULL);
-    XmStringFree(s);
-    s = XmStringCreateLocalized(" of 0");
-    XtVaSetValues(pageCountLabel, XmNlabelString, s, NULL);
-    XmStringFree(s);
-
-    // disable buttons
-    XtVaSetValues(prevTenPageBtn, XmNsensitive, False, NULL);
-    XtVaSetValues(prevPageBtn, XmNsensitive, False, NULL);
-    XtVaSetValues(nextTenPageBtn, XmNsensitive, False, NULL);
-    XtVaSetValues(nextPageBtn, XmNsensitive, False, NULL);
-  }
+  // disable buttons
+  XtVaSetValues(prevTenPageBtn, XmNsensitive, False, NULL);
+  XtVaSetValues(prevPageBtn, XmNsensitive, False, NULL);
+  XtVaSetValues(nextTenPageBtn, XmNsensitive, False, NULL);
+  XtVaSetValues(nextPageBtn, XmNsensitive, False, NULL);
 
   // remove the old outline
 #ifndef DISABLE_OUTLINE
@@ -604,13 +590,13 @@ void XPDFViewer::mouseCbk(void *data, XEvent *event) {
   int i;
 
   if (event->type == ButtonPress) {
-    if (event->xbutton.button >= 1 && event->xbutton.button <= 32) {
+    if (event->xbutton.button >= 1 && event->xbutton.button <= 7) {
       keyCode = xpdfKeyCodeMousePress1 + event->xbutton.button - 1;
     } else {
       return;
     }
   } else if (event->type == ButtonRelease) {
-    if (event->xbutton.button >= 1 && event->xbutton.button <= 32) {
+    if (event->xbutton.button >= 1 && event->xbutton.button <= 7) {
       keyCode = xpdfKeyCodeMouseRelease1 + event->xbutton.button - 1;
     } else {
       return;
@@ -739,7 +725,7 @@ void XPDFViewer::execCmd(GString *cmd, XEvent *event) {
   return;
 
  err1:
-  error(errConfig, -1, "Invalid command syntax: '{0:t}'", cmd);
+  error(-1, "Invalid command syntax: '%s'", cmd->getCString());
  err2:
   if (name) {
     delete name;
@@ -848,12 +834,10 @@ void XPDFViewer::cmdFocusToDocWin(GString *args[], int nArgs,
 
 void XPDFViewer::cmdFocusToPageNum(GString *args[], int nArgs,
 				   XEvent *event) {
-  if (toolBar != None) {
-    XmTextFieldSetSelection(pageNumText, 0,
-			    strlen(XmTextFieldGetString(pageNumText)),
-			    XtLastTimestampProcessed(display));
-    XmProcessTraversal(pageNumText, XmTRAVERSE_CURRENT);
-  }
+  XmTextFieldSetSelection(pageNumText, 0,
+			  strlen(XmTextFieldGetString(pageNumText)),
+			  XtLastTimestampProcessed(display));
+  XmProcessTraversal(pageNumText, XmTRAVERSE_CURRENT);
 }
 
 void XPDFViewer::cmdFollowLink(GString *args[], int nArgs,
@@ -1082,31 +1066,13 @@ void XPDFViewer::cmdReload(GString *args[], int nArgs,
   reloadFile();
 }
 
-void XPDFViewer::cmdRotateCCW(GString *args[], int nArgs,
-			     XEvent *event) {
-  int r;
-
-  r = core->getRotate();
-  r = (r == 0) ? 270 : r - 90;
-  displayPage(core->getPageNum(), core->getZoom(), r, gTrue, gFalse);
-}
-
-void XPDFViewer::cmdRotateCW(GString *args[], int nArgs,
-			     XEvent *event) {
-  int r;
-
-  r = core->getRotate();
-  r = (r == 270) ? 0 : r + 90;
-  displayPage(core->getPageNum(), core->getZoom(), r, gTrue, gFalse);
-}
-
 void XPDFViewer::cmdRun(GString *args[], int nArgs,
 			XEvent *event) {
   GString *fmt, *cmd, *s;
   LinkAction *action;
-  double selLRX, selLRY, selURX, selURY, mouseX, mouseY;
-  int selPage, mousePage;
-  GBool gotSel, gotMouse;
+  double selLRX, selLRY, selURX, selURY;
+  int selPage;
+  GBool gotSel;
   char buf[64];
   char *p;
   char c0, c1;
@@ -1115,7 +1081,7 @@ void XPDFViewer::cmdRun(GString *args[], int nArgs,
   cmd = new GString();
   fmt = args[0];
   i = 0;
-  gotSel = gotMouse = gFalse;
+  gotSel = gFalse;
   while (i < fmt->getLength()) {
     c0 = fmt->getChar(i);
     if (c0 == '%' && i+1 < fmt->getLength()) {
@@ -1143,12 +1109,6 @@ void XPDFViewer::cmdRun(GString *args[], int nArgs,
 	  delete s;
 	}
 	break;
-      case 'p':
-	if (core->getDoc()) {
-	  sprintf(buf, "%d", core->getPageNum());
-	  cmd->append(buf);
-	}
-	break;
       case 'x':
       case 'y':
       case 'X':
@@ -1165,29 +1125,6 @@ void XPDFViewer::cmdRun(GString *args[], int nArgs,
 		(c1 == 'x') ? selURX :
 		(c1 == 'y') ? selURY :
 		(c1 == 'X') ? selLRX : selLRY);
-	cmd->append(buf);
-	break;
-      case 'i':
-      case 'j':
-      case 'k':
-	if (!gotMouse) {
-	  if (event->type == ButtonPress || event->type == ButtonRelease) {
-	    core->cvtWindowToUser(event->xbutton.x, event->xbutton.y,
-				  &mousePage, &mouseX, &mouseY);
-	  } else if (event->type == KeyPress) {
-	    core->cvtWindowToUser(event->xkey.x, event->xkey.y,
-				  &mousePage, &mouseX, &mouseY);
-	  } else {
-	    mousePage = 0;
-	    mouseX = mouseY = 0;
-	  }
-	  gotMouse = gTrue;
-	}
-	if (c1 == 'i') {
-	  sprintf(buf, "%d", mousePage);
-	} else {
-	  sprintf(buf, "%g", (c1 == 'j') ? mouseX : mouseY);
-	}
 	cmd->append(buf);
 	break;
       default:
@@ -1311,19 +1248,6 @@ void XPDFViewer::cmdScrollUp(GString *args[], int nArgs,
 void XPDFViewer::cmdScrollUpPrevPage(GString *args[], int nArgs,
 				     XEvent *event) {
   core->scrollUpPrevPage(atoi(args[0]->getCString()));
-}
-
-void XPDFViewer::cmdSetSelection(GString *args[], int nArgs, XEvent *event) {
-  int pg, ulx, uly, lrx, lry;
-
-  pg = atoi(args[0]->getCString());
-  core->cvtUserToDev(core->getPageNum(),
-		     atof(args[1]->getCString()), atof(args[2]->getCString()),
-		     &ulx, &uly);
-  core->cvtUserToDev(core->getPageNum(),
-		     atof(args[3]->getCString()), atof(args[4]->getCString()),
-		     &lrx, &lry);
-  core->setSelection(pg, ulx, uly, lrx, lry);
 }
 
 void XPDFViewer::cmdSinglePageMode(GString *args[], int nArgs,
@@ -1783,7 +1707,7 @@ void XPDFViewer::initToolbar(Widget parent) {
   XtSetArg(args[n], XmNpositionMode, XmONE_BASED); ++n;
   XtSetArg(args[n], XmNcolumns, 7); ++n;
   for (i = 0; i < nZoomMenuItems; ++i) {
-    st[i] = XmStringCreateLocalized((char *)zoomMenuInfo[i].label);
+    st[i] = XmStringCreateLocalized(zoomMenuInfo[i].label);
   }
   XtSetArg(args[n], XmNitems, st); ++n;
   XtSetArg(args[n], XmNitemCount, nZoomMenuItems); ++n;
@@ -2568,15 +2492,23 @@ void XPDFViewer::fullScreenToggleCbk(Widget widget, XtPointer ptr,
 void XPDFViewer::rotateCCWCbk(Widget widget, XtPointer ptr,
 			      XtPointer callData) {
   XPDFViewer *viewer = (XPDFViewer *)ptr;
+  int r;
 
-  viewer->cmdRotateCCW(NULL, 0, NULL);
+  r = viewer->core->getRotate();
+  r = (r == 0) ? 270 : r - 90;
+  viewer->displayPage(viewer->core->getPageNum(), viewer->core->getZoom(),
+		      r, gTrue, gFalse);
 }
 
 void XPDFViewer::rotateCWCbk(Widget widget, XtPointer ptr,
 			     XtPointer callData) {
   XPDFViewer *viewer = (XPDFViewer *)ptr;
+  int r;
 
-  viewer->cmdRotateCW(NULL, 0, NULL);
+  r = viewer->core->getRotate();
+  r = (r == 270) ? 0 : r + 90;
+  viewer->displayPage(viewer->core->getPageNum(), viewer->core->getZoom(),
+		      r, gTrue, gFalse);
 }
 
 void XPDFViewer::zoomToSelectionCbk(Widget widget, XtPointer ptr,
@@ -2636,7 +2568,7 @@ void XPDFViewer::pageNumCbk(Widget widget, XtPointer ptr,
 }
 
 void XPDFViewer::updateCbk(void *data, GString *fileName,
-			   int pageNum, int numPages, const char *linkString) {
+			   int pageNum, int numPages, char *linkString) {
   XPDFViewer *viewer = (XPDFViewer *)data;
   GString *title;
   char buf[20];
@@ -2686,12 +2618,13 @@ void XPDFViewer::updateCbk(void *data, GString *fileName,
     }
 
     if (linkString) {
-      s = XmStringCreateLocalized((char *)linkString);
+      s = XmStringCreateLocalized(linkString);
       XtVaSetValues(viewer->linkLabel, XmNlabelString, s, NULL);
       XmStringFree(s);
     }
   }
 }
+
 
 //------------------------------------------------------------------------
 // GUI code: outline
@@ -2907,7 +2840,7 @@ void XPDFViewer::initAboutDialog() {
   //----- text
   for (i = 0; aboutWinText[i]; ++i) {
     n = 0;
-    s = XmStringCreateLocalized((char *)aboutWinText[i]);
+    s = XmStringCreateLocalized(aboutWinText[i]);
     XtSetArg(args[n], XmNlabelString, s); ++n;
     XtSetArg(args[n], XmNfontList, aboutFixedFont); ++n;
     sprintf(buf, "t%d", i);
@@ -3057,6 +2990,8 @@ void XPDFViewer::initFindDialog() {
   XtSetArg(args[n], XmNleftAttachment, XmATTACH_WIDGET); ++n;
   XtSetArg(args[n], XmNleftWidget, findBackwardToggle); ++n;
   XtSetArg(args[n], XmNleftOffset, 16); ++n;
+  XtSetArg(args[n], XmNrightAttachment, XmATTACH_FORM); ++n;
+  XtSetArg(args[n], XmNrightOffset, 4); ++n;
   XtSetArg(args[n], XmNbottomAttachment, XmATTACH_WIDGET); ++n;
   XtSetArg(args[n], XmNbottomWidget, okBtn); ++n;
   XtSetArg(args[n], XmNindicatorType, XmN_OF_MANY); ++n;
@@ -3072,26 +3007,6 @@ void XPDFViewer::initFindDialog() {
       XmCreateToggleButton(findDialog, "matchCase", args, n);
   XmStringFree(s);
   XtManageChild(findCaseSensitiveToggle);
-  n = 0;
-  XtSetArg(args[n], XmNleftAttachment, XmATTACH_WIDGET); ++n;
-  XtSetArg(args[n], XmNleftWidget, findCaseSensitiveToggle); ++n;
-  XtSetArg(args[n], XmNleftOffset, 16); ++n;
-  XtSetArg(args[n], XmNrightAttachment, XmATTACH_FORM); ++n;
-  XtSetArg(args[n], XmNrightOffset, 4); ++n;
-  XtSetArg(args[n], XmNbottomAttachment, XmATTACH_WIDGET); ++n;
-  XtSetArg(args[n], XmNbottomWidget, okBtn); ++n;
-  XtSetArg(args[n], XmNindicatorType, XmN_OF_MANY); ++n;
-#if XmVERSION <= 1
-  XtSetArg(args[n], XmNindicatorOn, True); ++n;
-#else
-  XtSetArg(args[n], XmNindicatorOn, XmINDICATOR_FILL); ++n;
-#endif
-  XtSetArg(args[n], XmNset, XmUNSET); ++n;
-  s = XmStringCreateLocalized("Whole words only");
-  XtSetArg(args[n], XmNlabelString, s); ++n;
-  findWholeWordToggle = XmCreateToggleButton(findDialog, "wholeWord", args, n);
-  XmStringFree(s);
-  XtManageChild(findWholeWordToggle);
 
   //----- search string entry
   n = 0;
@@ -3159,7 +3074,6 @@ void XPDFViewer::doFind(GBool next) {
 	     XmToggleButtonGetState(findCaseSensitiveToggle),
 	     next,
 	     XmToggleButtonGetState(findBackwardToggle),
-	     XmToggleButtonGetState(findWholeWordToggle),
 	     gFalse);
   if (XtWindow(findDialog)) {
     XUndefineCursor(display, XtWindow(findDialog));
@@ -3493,7 +3407,7 @@ void XPDFViewer::printPrintCbk(Widget widget, XtPointer ptr,
 
   doc = viewer->core->getDoc();
   if (!doc->okToPrint()) {
-    error(errNotAllowed, -1, "Printing this document is not allowed.");
+    error(-1, "Printing this document is not allowed.");
     return;
   }
 
@@ -3520,8 +3434,9 @@ void XPDFViewer::printPrintCbk(Widget widget, XtPointer ptr,
     lastPage = doc->getNumPages();
   }
 
-  psOut = new PSOutputDev(psFileName->getCString(), doc,
-			  firstPage, lastPage, psModePS);
+  psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
+			  doc->getCatalog(), firstPage, lastPage,
+			  psModePS);
   if (psOut->isOk()) {
     doc->displayPages(psOut, firstPage, lastPage, 72, 72,
 		      0, gTrue, globalParams->getPSCrop(), gTrue);

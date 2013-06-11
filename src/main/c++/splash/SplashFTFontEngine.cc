@@ -32,7 +32,7 @@ extern "C" int unlink(char *filename);
 
 //------------------------------------------------------------------------
 
-static void fileWrite(void *stream, const char *data, int len) {
+static void fileWrite(void *stream, char *data, int len) {
   fwrite(data, 1, len, (FILE *)stream);
 }
 
@@ -40,12 +40,10 @@ static void fileWrite(void *stream, const char *data, int len) {
 // SplashFTFontEngine
 //------------------------------------------------------------------------
 
-SplashFTFontEngine::SplashFTFontEngine(GBool aaA, Guint flagsA,
-				       FT_Library libA) {
+SplashFTFontEngine::SplashFTFontEngine(GBool aaA, FT_Library libA) {
   FT_Int major, minor, patch;
 
   aa = aaA;
-  flags = flagsA;
   lib = libA;
 
   // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
@@ -54,13 +52,13 @@ SplashFTFontEngine::SplashFTFontEngine(GBool aaA, Guint flagsA,
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 }
 
-SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA, Guint flagsA) {
+SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA) {
   FT_Library libA;
 
   if (FT_Init_FreeType(&libA)) {
     return NULL;
   }
-  return new SplashFTFontEngine(aaA, flagsA, libA);
+  return new SplashFTFontEngine(aaA, libA);
 }
 
 SplashFTFontEngine::~SplashFTFontEngine() {
@@ -70,21 +68,21 @@ SplashFTFontEngine::~SplashFTFontEngine() {
 SplashFontFile *SplashFTFontEngine::loadType1Font(SplashFontFileID *idA,
 						  char *fileName,
 						  GBool deleteFile,
-						  const char **enc) {
+						  char **enc) {
   return SplashFTFontFile::loadType1Font(this, idA, fileName, deleteFile, enc);
 }
 
 SplashFontFile *SplashFTFontEngine::loadType1CFont(SplashFontFileID *idA,
 						   char *fileName,
 						   GBool deleteFile,
-						   const char **enc) {
+						   char **enc) {
   return SplashFTFontFile::loadType1Font(this, idA, fileName, deleteFile, enc);
 }
 
 SplashFontFile *SplashFTFontEngine::loadOpenTypeT1CFont(SplashFontFileID *idA,
 							char *fileName,
 							GBool deleteFile,
-							const char **enc) {
+							char **enc) {
   return SplashFTFontFile::loadType1Font(this, idA, fileName, deleteFile, enc);
 }
 
@@ -92,7 +90,7 @@ SplashFontFile *SplashFTFontEngine::loadCIDFont(SplashFontFileID *idA,
 						char *fileName,
 						GBool deleteFile) {
   FoFiType1C *ff;
-  int *cidToGIDMap;
+  Gushort *cidToGIDMap;
   int nCIDs;
   SplashFontFile *ret;
 
@@ -117,31 +115,26 @@ SplashFontFile *SplashFTFontEngine::loadCIDFont(SplashFontFileID *idA,
 
 SplashFontFile *SplashFTFontEngine::loadOpenTypeCFFFont(SplashFontFileID *idA,
 							char *fileName,
-							GBool deleteFile,
-							int *codeToGID,
-							int codeToGIDLen) {
+							GBool deleteFile) {
   FoFiTrueType *ff;
   GBool isCID;
-  int *cidToGIDMap;
+  Gushort *cidToGIDMap;
   int nCIDs;
   SplashFontFile *ret;
 
   cidToGIDMap = NULL;
   nCIDs = 0;
   isCID = gFalse;
-  if (!codeToGID) {
-    if (!useCIDs) {
-      if ((ff = FoFiTrueType::load(fileName))) {
-	if (ff->isOpenTypeCFF()) {
-	  cidToGIDMap = ff->getCIDToGIDMap(&nCIDs);
-	}
-	delete ff;
+  if (!useCIDs) {
+    if ((ff = FoFiTrueType::load(fileName))) {
+      if (ff->isOpenTypeCFF()) {
+	cidToGIDMap = ff->getCIDToGIDMap(&nCIDs);
       }
+      delete ff;
     }
   }
   ret = SplashFTFontFile::loadCIDFont(this, idA, fileName, deleteFile,
-				      codeToGID ? codeToGID : cidToGIDMap,
-				      codeToGID ? codeToGIDLen : nCIDs);
+				      cidToGIDMap, nCIDs);
   if (!ret) {
     gfree(cidToGIDMap);
   }
@@ -150,16 +143,14 @@ SplashFontFile *SplashFTFontEngine::loadOpenTypeCFFFont(SplashFontFileID *idA,
 
 SplashFontFile *SplashFTFontEngine::loadTrueTypeFont(SplashFontFileID *idA,
 						     char *fileName,
-						     int fontNum,
 						     GBool deleteFile,
-						     int *codeToGID,
+						     Gushort *codeToGID,
 						     int codeToGIDLen) {
   FoFiTrueType *ff;
   GString *tmpFileName;
   FILE *tmpFile;
   SplashFontFile *ret;
 
-  //~ this should use fontNum to load the correct font
   if (!(ff = FoFiTrueType::load(fileName))) {
     return NULL;
   }
@@ -172,7 +163,7 @@ SplashFontFile *SplashFTFontEngine::loadTrueTypeFont(SplashFontFileID *idA,
   delete ff;
   fclose(tmpFile);
   ret = SplashFTFontFile::loadTrueTypeFont(this, idA,
-					   tmpFileName->getCString(), fontNum,
+					   tmpFileName->getCString(),
 					   gTrue, codeToGID, codeToGIDLen);
   if (ret) {
     if (deleteFile) {

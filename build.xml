@@ -22,7 +22,7 @@
 	<property name="build.output.classes" location="${build.output.dir}/classes" />
 
 	<property name="xpdf.groupId" value="com.foolabs.xpdf" />
-	<property name="xpdf.version" value="3.0.3" />
+	<property name="xpdf.version" value="3.0.2" />
 	<property name="xpdf.vendor" value="Glyph &amp; Cog, LLC" />
 
 	<property name="xpdf.jni.artifactId" value="javaxpdf" />

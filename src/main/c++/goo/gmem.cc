@@ -55,15 +55,7 @@ void *gmalloc(int size) GMEM_EXCEP {
   void *data;
   unsigned long *trl, *p;
 
-  if (size < 0) {
-#if USE_EXCEPTIONS
-    throw GMemException();
-#else
-    fprintf(stderr, "Invalid memory allocation size\n");
-    exit(1);
-#endif
-  }
-  if (size == 0) {
+  if (size <= 0) {
     return NULL;
   }
   size1 = gMemDataSize(size);
@@ -99,15 +91,7 @@ void *gmalloc(int size) GMEM_EXCEP {
 #else
   void *p;
 
-  if (size < 0) {
-#if USE_EXCEPTIONS
-    throw GMemException();
-#else
-    fprintf(stderr, "Invalid memory allocation size\n");
-    exit(1);
-#endif
-  }
-  if (size == 0) {
+  if (size <= 0) {
     return NULL;
   }
   if (!(p = malloc(size))) {
@@ -128,15 +112,7 @@ void *grealloc(void *p, int size) GMEM_EXCEP {
   void *q;
   int oldSize;
 
-  if (size < 0) {
-#if USE_EXCEPTIONS
-    throw GMemException();
-#else
-    fprintf(stderr, "Invalid memory allocation size\n");
-    exit(1);
-#endif
-  }
-  if (size == 0) {
+  if (size <= 0) {
     if (p) {
       gfree(p);
     }
@@ -155,15 +131,7 @@ void *grealloc(void *p, int size) GMEM_EXCEP {
 #else
   void *q;
 
-  if (size < 0) {
-#if USE_EXCEPTIONS
-    throw GMemException();
-#else
-    fprintf(stderr, "Invalid memory allocation size\n");
-    exit(1);
-#endif
-  }
-  if (size == 0) {
+  if (size <= 0) {
     if (p) {
       free(p);
     }
@@ -287,10 +255,10 @@ void gMemReport(FILE *f) {
 }
 #endif
 
-char *copyString(const char *s) {
+char *copyString(char *s) {
   char *s1;
 
-  s1 = (char *)gmalloc((int)strlen(s) + 1);
+  s1 = (char *)gmalloc(strlen(s) + 1);
   strcpy(s1, s);
   return s1;
 }

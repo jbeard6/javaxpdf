@@ -8,9 +8,6 @@
 //
 //========================================================================
 
-#ifndef STREAM_CCITT_H
-#define STREAM_CCITT_H
-
 struct CCITTCode {
   short bits;
   short n;
@@ -460,5 +457,3 @@ static CCITTCode blackTab3[64] = {
     {2, 2}, {2, 2}, {2, 2}, {2, 2},
     {2, 2}, {2, 2}, {2, 2}, {2, 2}
 };
-
-#endif

@@ -19,7 +19,6 @@ class XRef;
 class Catalog;
 class Gfx;
 class GfxFontDict;
-class PDFDoc;
 
 //------------------------------------------------------------------------
 // AnnotBorderStyle
@@ -64,18 +63,11 @@ private:
 class Annot {
 public:
 
-  Annot(PDFDoc *docA, Dict *dict, Ref *refA);
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Ref *refA);
   ~Annot();
   GBool isOk() { return ok; }
 
   void draw(Gfx *gfx, GBool printing);
-
-  GString *getType() { return type; }
-  double getXMin() { return xMin; }
-  double getYMin() { return yMin; }
-  double getXMax() { return xMax; }
-  double getYMax() { return yMax; }
-  Object *getObject(Object *obj);
 
   // Get appearance object.
   Object *getAppearance(Object *obj) { return appearance.fetch(xref, obj); }
@@ -92,7 +84,7 @@ private:
   void setColor(Array *a, GBool fill, int adjust);
   void drawText(GString *text, GString *da, GfxFontDict *fontDict,
 		GBool multiline, int comb, int quadding,
-		GBool txField, GBool forceZapfDingbats, int rot);
+		GBool txField, GBool forceZapfDingbats);
   void drawListBox(GString **text, GBool *selection,
 		   int nOptions, int topIdx,
 		   GString *da, GfxFontDict *fontDict, GBool quadding);
@@ -102,14 +94,11 @@ private:
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
-  Object *fieldLookup(Dict *field, Dict *acroForm,
-		      const char *key, Object *obj);
+  Object *fieldLookup(Dict *field, char *key, Object *obj);
 
-  PDFDoc *doc;
   XRef *xref;			// the xref table for this PDF file
   Ref ref;			// object ref identifying this annotation
   GString *type;		// annotation type
-  GString *appearanceState;	// appearance state name
   Object appearance;		// a reference to the Form XObject stream
 				//   for the normal appearance
   GString *appearBuf;
@@ -117,7 +106,6 @@ private:
          xMax, yMax;
   Guint flags;
   AnnotBorderStyle *borderStyle;
-  Object ocObj;			// optional content entry
   GBool ok;
 };
 
@@ -129,7 +117,7 @@ class Annots {
 public:
 
   // Build a list of Annot objects.
-  Annots(PDFDoc *docA, Object *annotsObj);
+  Annots(XRef *xref, Catalog *catalog, Object *annotsObj);
 
   ~Annots();
 
@@ -139,7 +127,7 @@ public:
 
   // (Re)generate the appearance streams for all annotations belonging
   // to a form field.
-  void generateAppearances();
+  void generateAppearances(Dict *acroForm);
 
 private:
 
@@ -147,7 +135,6 @@ private:
 			    Dict *acroForm);
   Annot *findAnnot(Ref *ref);
 
-  PDFDoc *doc;
   Annot **annots;
   int nAnnots;
 };

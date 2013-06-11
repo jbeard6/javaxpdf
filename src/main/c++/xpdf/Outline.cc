@@ -15,7 +15,6 @@
 #include "gmem.h"
 #include "GString.h"
 #include "GList.h"
-#include "Error.h"
 #include "Link.h"
 #include "PDFDocEncoding.h"
 #include "Outline.h"
@@ -29,11 +28,9 @@ Outline::Outline(Object *outlineObj, XRef *xref) {
   if (!outlineObj->isDict()) {
     return;
   }
-  outlineObj->dictLookupNF("First", &first);
-  outlineObj->dictLookupNF("Last", &last);
-  if (first.isRef() && last.isRef()) {
-    items = OutlineItem::readItemList(&first, &last, xref);
-  }
+  items = OutlineItem::readItemList(outlineObj->dictLookupNF("First", &first),
+				    outlineObj->dictLookupNF("Last", &last),
+				    xref);
   first.free();
   last.free();
 }
@@ -119,15 +116,11 @@ GList *OutlineItem::readItemList(Object *firstItemRef, Object *lastItemRef,
   GList *items;
   OutlineItem *item;
   Object obj;
-  Object *p, *refObj;
-  int i;
+  Object *p;
 
   items = new GList();
-  if (!firstItemRef->isRef() || !lastItemRef->isRef()) {
-    return items;
-  }
   p = firstItemRef;
-  do {
+  while (p->isRef()) {
     if (!p->fetch(xrefA, &obj)->isDict()) {
       obj.free();
       break;
@@ -135,25 +128,12 @@ GList *OutlineItem::readItemList(Object *firstItemRef, Object *lastItemRef,
     item = new OutlineItem(obj.getDict(), xrefA);
     obj.free();
     items->append(item);
-    if (p->getRefNum() == lastItemRef->getRef().num &&
-	p->getRefGen() == lastItemRef->getRef().gen) {
+    if (p->getRef().num == lastItemRef->getRef().num &&
+	p->getRef().gen == lastItemRef->getRef().gen) {
       break;
     }
     p = &item->nextRef;
-    if (!p->isRef()) {
-      break;
-    }
-    for (i = 0; i < items->getLength(); ++i) {
-      refObj = (i == 0) ? firstItemRef
-	                : &((OutlineItem *)items->get(i - 1))->nextRef;
-      if (refObj->getRefNum() == p->getRefNum() &&
-	  refObj->getRefGen() == p->getRefGen()) {
-	error(errSyntaxError, -1, "Loop detected in outline item list");
-	p = NULL;
-	break;
-      }
-    }
-  } while (p);
+  }
   return items;
 }
 

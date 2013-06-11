@@ -24,7 +24,7 @@
 // Object
 //------------------------------------------------------------------------
 
-const char *objTypeNames[numObjTypes] = {
+char *objTypeNames[numObjTypes] = {
   "boolean",
   "integer",
   "real",
@@ -101,9 +101,9 @@ Object *Object::copy(Object *obj) {
   return obj;
 }
 
-Object *Object::fetch(XRef *xref, Object *obj, int recursion) {
+Object *Object::fetch(XRef *xref, Object *obj) {
   return (type == objRef && xref) ?
-         xref->fetch(ref.num, ref.gen, obj, recursion) : copy(obj);
+         xref->fetch(ref.num, ref.gen, obj) : copy(obj);
 }
 
 void Object::free() {
@@ -141,7 +141,7 @@ void Object::free() {
   type = objNone;
 }
 
-const char *Object::getTypeName() {
+char *Object::getTypeName() {
   return objTypeNames[type];
 }
 

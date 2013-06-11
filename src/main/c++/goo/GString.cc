@@ -29,12 +29,6 @@ union GStringFormatArg {
   Guint ui;
   long l;
   Gulong ul;
-#ifdef LLONG_MAX
-  long long ll;
-#endif
-#ifdef ULLONG_MAX
-  unsigned long long ull;
-#endif
   double f;
   char c;
   char *s;
@@ -58,18 +52,6 @@ enum GStringFormatType {
   fmtULongHex,
   fmtULongOctal,
   fmtULongBinary,
-#ifdef LLONG_MAX
-  fmtLongLongDecimal,
-  fmtLongLongHex,
-  fmtLongLongOctal,
-  fmtLongLongBinary,
-#endif
-#ifdef ULLONG_MAX
-  fmtULongLongDecimal,
-  fmtULongLongHex,
-  fmtULongLongOctal,
-  fmtULongLongBinary,
-#endif
   fmtDouble,
   fmtDoubleTrim,
   fmtChar,
@@ -78,15 +60,9 @@ enum GStringFormatType {
   fmtSpace
 };
 
-static const char *formatStrings[] = {
+static char *formatStrings[] = {
   "d", "x", "o", "b", "ud", "ux", "uo", "ub",
   "ld", "lx", "lo", "lb", "uld", "ulx", "ulo", "ulb",
-#ifdef LLONG_MAX
-  "lld", "llx", "llo", "llb",
-#endif
-#ifdef ULLONG_MAX
-  "ulld", "ullx", "ullo", "ullb",
-#endif
   "f", "g",
   "c",
   "s",
@@ -129,7 +105,7 @@ GString::GString() {
 }
 
 GString::GString(const char *sA) {
-  int n = (int)strlen(sA);
+  int n = strlen(sA);
 
   s = NULL;
   resize(length = n);
@@ -175,7 +151,7 @@ GString *GString::fromInt(int x) {
   return new GString(p, len);
 }
 
-GString *GString::format(const char *fmt, ...) {
+GString *GString::format(char *fmt, ...) {
   va_list argList;
   GString *s;
 
@@ -186,7 +162,7 @@ GString *GString::format(const char *fmt, ...) {
   return s;
 }
 
-GString *GString::formatv(const char *fmt, va_list argList) {
+GString *GString::formatv(char *fmt, va_list argList) {
   GString *s;
 
   s = new GString();
@@ -221,7 +197,7 @@ GString *GString::append(GString *str) {
 }
 
 GString *GString::append(const char *str) {
-  int n = (int)strlen(str);
+  int n = strlen(str);
 
   resize(length + n);
   memcpy(s + length, str, n + 1);
@@ -237,7 +213,7 @@ GString *GString::append(const char *str, int lengthA) {
   return this;
 }
 
-GString *GString::appendf(const char *fmt, ...) {
+GString *GString::appendf(char *fmt, ...) {
   va_list argList;
 
   va_start(argList, fmt);
@@ -246,7 +222,7 @@ GString *GString::appendf(const char *fmt, ...) {
   return this;
 }
 
-GString *GString::appendfv(const char *fmt, va_list argList) {
+GString *GString::appendfv(char *fmt, va_list argList) {
   GStringFormatArg *args;
   int argsLen, argsSize;
   GStringFormatArg arg;
@@ -255,8 +231,7 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
   GStringFormatType ft;
   char buf[65];
   int len, i;
-  const char *p0, *p1;
-  char *str;
+  char *p0, *p1, *str;
 
   argsLen = 0;
   argsSize = 8;
@@ -293,9 +268,6 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
 	zeroFill = *p0 == '0';
 	for (; *p0 >= '0' && *p0 <= '9'; ++p0) {
 	  width = 10 * width + (*p0 - '0');
-	}
-	if (width < 0) {
-	  width = 0;
 	}
 	if (*p0 == '.') {
 	  ++p0;
@@ -358,22 +330,6 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
 	  case fmtULongBinary:
 	    args[argsLen].ul = va_arg(argList, Gulong);
 	    break;
-#ifdef LLONG_MAX
-	  case fmtLongLongDecimal:
-	  case fmtLongLongHex:
-	  case fmtLongLongOctal:
-	  case fmtLongLongBinary:
-	    args[argsLen].ll = va_arg(argList, long long);
-	    break;
-#endif
-#ifdef ULLONG_MAX
-	  case fmtULongLongDecimal:
-	  case fmtULongLongHex:
-	  case fmtULongLongOctal:
-	  case fmtULongLongBinary:
-	    args[argsLen].ull = va_arg(argList, unsigned long long);
-	    break;
-#endif
 	  case fmtDouble:
 	  case fmtDoubleTrim:
 	    args[argsLen].f = va_arg(argList, double);
@@ -446,38 +402,6 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
 	case fmtULongBinary:
 	  formatUInt(arg.ul, buf, sizeof(buf), zeroFill, width, 2, &str, &len);
 	  break;
-#ifdef LLONG_MAX
-	case fmtLongLongDecimal:
-	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 10, &str, &len);
-	  break;
-	case fmtLongLongHex:
-	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 16, &str, &len);
-	  break;
-	case fmtLongLongOctal:
-	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 8, &str, &len);
-	  break;
-	case fmtLongLongBinary:
-	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 2, &str, &len);
-	  break;
-#endif
-#ifdef ULLONG_MAX
-	case fmtULongLongDecimal:
-	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 10,
-		     &str, &len);
-	  break;
-	case fmtULongLongHex:
-	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 16,
-		     &str, &len);
-	  break;
-	case fmtULongLongOctal:
-	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 8,
-		     &str, &len);
-	  break;
-	case fmtULongLongBinary:
-	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 2,
-		     &str, &len);
-	  break;
-#endif
 	case fmtDouble:
 	  formatDouble(arg.f, buf, sizeof(buf), prec, gFalse, &str, &len);
 	  break;
@@ -492,7 +416,7 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtString:
 	  str = arg.s;
-	  len = (int)strlen(str);
+	  len = strlen(str);
 	  reverseAlign = !reverseAlign;
 	  break;
 	case fmtGString:
@@ -530,7 +454,7 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
       
     } else {
       for (p1 = p0 + 1; *p1 && *p1 != '{' && *p1 != '}'; ++p1) ;
-      append(p0, (int)(p1 - p0));
+      append(p0, p1 - p0);
       p0 = p1;
     }
   }
@@ -539,15 +463,9 @@ GString *GString::appendfv(const char *fmt, va_list argList) {
   return this;
 }
 
-#ifdef LLONG_MAX
-void GString::formatInt(long long x, char *buf, int bufSize,
-			GBool zeroFill, int width, int base,
-			char **p, int *len) {
-#else
 void GString::formatInt(long x, char *buf, int bufSize,
 			GBool zeroFill, int width, int base,
 			char **p, int *len) {
-#endif
   static char vals[17] = "0123456789abcdef";
   GBool neg;
   int start, i, j;
@@ -577,15 +495,9 @@ void GString::formatInt(long x, char *buf, int bufSize,
   *len = bufSize - i;
 }
 
-#ifdef ULLONG_MAX
-void GString::formatUInt(unsigned long long x, char *buf, int bufSize,
-			 GBool zeroFill, int width, int base,
-			 char **p, int *len) {
-#else
 void GString::formatUInt(Gulong x, char *buf, int bufSize,
 			 GBool zeroFill, int width, int base,
 			 char **p, int *len) {
-#endif
   static char vals[17] = "0123456789abcdef";
   int i, j;
 
@@ -616,7 +528,7 @@ void GString::formatDouble(double x, char *buf, int bufSize, int prec,
   if ((neg = x < 0)) {
     x = -x;
   }
-  x = floor(x * pow(10.0, prec) + 0.5);
+  x = floor(x * pow(10, prec) + 0.5);
   i = bufSize;
   started = !trim;
   for (j = 0; j < prec && i > 1; ++j) {
@@ -670,7 +582,7 @@ GString *GString::insert(int i, GString *str) {
 }
 
 GString *GString::insert(int i, const char *str) {
-  int n = (int)strlen(str);
+  int n = strlen(str);
   int j;
 
   resize(length + n);
@@ -695,7 +607,7 @@ GString *GString::insert(int i, const char *str, int lengthA) {
 GString *GString::del(int i, int n) {
   int j;
 
-  if (i >= 0 && n > 0 && i + n > 0) {
+  if (n > 0) {
     if (i + n > length) {
       n = length - i;
     }

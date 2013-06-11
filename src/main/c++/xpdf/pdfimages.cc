@@ -120,8 +120,7 @@ int main(int argc, char *argv[]) {
 
   // check for copy permission
   if (!doc->okToCopy()) {
-    error(errNotAllowed, -1,
-	  "Copying of images from this document is not allowed.");
+    error(-1, "Copying of images from this document is not allowed.");
     exitCode = 3;
     goto err1;
   }

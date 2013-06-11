@@ -29,16 +29,13 @@
 #include "Error.h"
 #include "config.h"
 
-static void printInfoString(FILE *f, Dict *infoDict, const char *key,
-			    const char *text1, const char *text2,
-			    UnicodeMap *uMap);
-static void printInfoDate(FILE *f, Dict *infoDict, const char *key,
-			  const char *fmt);
+static void printInfoString(FILE *f, Dict *infoDict, char *key,
+			    char *text1, char *text2, UnicodeMap *uMap);
+static void printInfoDate(FILE *f, Dict *infoDict, char *key, char *fmt);
 
 static int firstPage = 1;
 static int lastPage = 0;
 static GBool physLayout = gFalse;
-static double fixedPitch = 0;
 static GBool rawOrder = gFalse;
 static GBool htmlMeta = gFalse;
 static char textEncName[128] = "";
@@ -58,8 +55,6 @@ static ArgDesc argDesc[] = {
    "last page to convert"},
   {"-layout",  argFlag,     &physLayout,    0,
    "maintain original physical layout"},
-  {"-fixed",   argFP,       &fixedPitch,    0,
-   "assume fixed-pitch (or tabular) text"},
   {"-raw",     argFlag,     &rawOrder,      0,
    "keep strings in content stream order"},
   {"-htmlmeta", argFlag,   &htmlMeta,       0,
@@ -117,9 +112,6 @@ int main(int argc, char *argv[]) {
     goto err0;
   }
   fileName = new GString(argv[1]);
-  if (fixedPitch) {
-    physLayout = gTrue;
-  }
 
   // read config file
   globalParams = new GlobalParams(cfgFileName);
@@ -140,7 +132,7 @@ int main(int argc, char *argv[]) {
 
   // get mapping to output encoding
   if (!(uMap = globalParams->getTextEncoding())) {
-    error(errConfig, -1, "Couldn't get text encoding");
+    error(-1, "Couldn't get text encoding");
     delete fileName;
     goto err1;
   }
@@ -170,8 +162,7 @@ int main(int argc, char *argv[]) {
 
   // check for copy permission
   if (!doc->okToCopy()) {
-    error(errNotAllowed, -1,
-	  "Copying of text from this document is not allowed.");
+    error(-1, "Copying of text from this document is not allowed.");
     exitCode = 3;
     goto err2;
   }
@@ -204,7 +195,7 @@ int main(int argc, char *argv[]) {
       f = stdout;
     } else {
       if (!(f = fopen(textFileName->getCString(), "wb"))) {
-	error(errIO, -1, "Couldn't open text file '{0:t}'", textFileName);
+	error(-1, "Couldn't open text file '%s'", textFileName->getCString());
 	exitCode = 2;
 	goto err3;
       }
@@ -241,7 +232,7 @@ int main(int argc, char *argv[]) {
 
   // write text file
   textOut = new TextOutputDev(textFileName->getCString(),
-			      physLayout, fixedPitch, rawOrder, htmlMeta);
+			      physLayout, rawOrder, htmlMeta);
   if (textOut->isOk()) {
     doc->displayPages(textOut, firstPage, lastPage, 72, 72, 0,
 		      gFalse, gTrue, gFalse);
@@ -258,7 +249,7 @@ int main(int argc, char *argv[]) {
       f = stdout;
     } else {
       if (!(f = fopen(textFileName->getCString(), "ab"))) {
-	error(errIO, -1, "Couldn't open text file '{0:t}'", textFileName);
+	error(-1, "Couldn't open text file '%s'", textFileName->getCString());
 	exitCode = 2;
 	goto err3;
       }
@@ -290,9 +281,8 @@ int main(int argc, char *argv[]) {
   return exitCode;
 }
 
-static void printInfoString(FILE *f, Dict *infoDict, const char *key,
-			    const char *text1, const char *text2,
-			    UnicodeMap *uMap) {
+static void printInfoString(FILE *f, Dict *infoDict, char *key,
+			    char *text1, char *text2, UnicodeMap *uMap) {
   Object obj;
   GString *s1;
   GBool isUnicode;
@@ -328,8 +318,7 @@ static void printInfoString(FILE *f, Dict *infoDict, const char *key,
   obj.free();
 }
 
-static void printInfoDate(FILE *f, Dict *infoDict, const char *key,
-			  const char *fmt) {
+static void printInfoDate(FILE *f, Dict *infoDict, char *key, char *fmt) {
   Object obj;
   char *s;
 

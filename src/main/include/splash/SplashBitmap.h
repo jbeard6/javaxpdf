@@ -13,7 +13,6 @@
 #pragma interface
 #endif
 
-#include <stdio.h>
 #include "SplashTypes.h"
 
 //------------------------------------------------------------------------
@@ -42,16 +41,9 @@ public:
   Guchar *getAlphaPtr() { return alpha; }
 
   SplashError writePNMFile(char *fileName);
-  SplashError writePNMFile(FILE *f);
-  SplashError writeAlphaPGMFile(char *fileName);
 
   void getPixel(int x, int y, SplashColorPtr pixel);
   Guchar getAlpha(int x, int y);
-
-  // Caller takes ownership of the bitmap data.  The SplashBitmap
-  // object is no longer valid -- the next call should be to the
-  // destructor.
-  SplashColorPtr takeData();
 
 private:
 

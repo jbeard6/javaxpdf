@@ -1,6 +1,7 @@
 #include <iostream>
 #include <jni.h>
 #include "Page.h"
+#include "Catalog.h"
 #include "TextOutputDev.h"
 #include "Handle.h"
 #include "TextCollector.h"
@@ -30,9 +31,10 @@ JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage__1getText
 		const GBool useMediaBox = gFalse;
 		const GBool crop = gTrue;
 		const GBool printing = gFalse;
+		Catalog *catalog = NULL;
 
 		page->display(outputDevice, hDPI, vDPI, rotate, useMediaBox, crop,
-				printing);
+				printing, catalog);
 	}
 
 	delete collector; // All text should already be in Java

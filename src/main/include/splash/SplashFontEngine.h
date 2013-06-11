@@ -27,10 +27,6 @@ class SplashFont;
 
 #define splashFontCacheSize 16
 
-#if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
-#define splashFTNoHinting (1 << 0)
-#endif
-
 //------------------------------------------------------------------------
 // SplashFontEngine
 //------------------------------------------------------------------------
@@ -45,7 +41,6 @@ public:
 #endif
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
 		   GBool enableFreeType,
-		   Guint freeTypeFlags,
 #endif
 		   GBool aa);
 
@@ -57,20 +52,18 @@ public:
 
   // Load fonts - these create new SplashFontFile objects.
   SplashFontFile *loadType1Font(SplashFontFileID *idA, char *fileName,
-				GBool deleteFile, const char **enc);
+				GBool deleteFile, char **enc);
   SplashFontFile *loadType1CFont(SplashFontFileID *idA, char *fileName,
-				 GBool deleteFile, const char **enc);
+				 GBool deleteFile, char **enc);
   SplashFontFile *loadOpenTypeT1CFont(SplashFontFileID *idA, char *fileName,
-				      GBool deleteFile, const char **enc);
+				      GBool deleteFile, char **enc);
   SplashFontFile *loadCIDFont(SplashFontFileID *idA, char *fileName,
 			      GBool deleteFile);
   SplashFontFile *loadOpenTypeCFFFont(SplashFontFileID *idA, char *fileName,
-				      GBool deleteFile,
-				      int *codeToGID, int codeToGIDLen);
+				      GBool deleteFile);
   SplashFontFile *loadTrueTypeFont(SplashFontFileID *idA, char *fileName,
-				   int fontNum, GBool deleteFile,
-				   int *codeToGID, int codeToGIDLen,
-				   char *fontName);
+				   GBool deleteFile,
+				   Gushort *codeToGID, int codeToGIDLen);
 
   // Get a font - this does a cache lookup first, and if not found,
   // creates a new SplashFont object and adds it to the cache.  The

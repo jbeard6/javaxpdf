@@ -54,7 +54,7 @@ void Dict::add(char *key, Object *val) {
   ++length;
 }
 
-inline DictEntry *Dict::find(const char *key) {
+inline DictEntry *Dict::find(char *key) {
   int i;
 
   for (i = 0; i < length; ++i) {
@@ -64,20 +64,19 @@ inline DictEntry *Dict::find(const char *key) {
   return NULL;
 }
 
-GBool Dict::is(const char *type) {
+GBool Dict::is(char *type) {
   DictEntry *e;
 
   return (e = find("Type")) && e->val.isName(type);
 }
 
-Object *Dict::lookup(const char *key, Object *obj, int recursion) {
+Object *Dict::lookup(char *key, Object *obj) {
   DictEntry *e;
 
-  return (e = find(key)) ? e->val.fetch(xref, obj, recursion)
-                         : obj->initNull();
+  return (e = find(key)) ? e->val.fetch(xref, obj) : obj->initNull();
 }
 
-Object *Dict::lookupNF(const char *key, Object *obj) {
+Object *Dict::lookupNF(char *key, Object *obj) {
   DictEntry *e;
 
   return (e = find(key)) ? e->val.copy(obj) : obj->initNull();

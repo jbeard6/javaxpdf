@@ -39,7 +39,7 @@ public:
   virtual ~Function();
 
   // Construct a function.  Returns NULL if unsuccessful.
-  static Function *parse(Object *funcObj, int recursion = 0);
+  static Function *parse(Object *funcObj);
 
   // Initialize the entries common to all function types.
   GBool init(Dict *dict);
@@ -129,12 +129,10 @@ private:
     decode[funcMaxOutputs][2];
   double			// input multipliers
     inputMul[funcMaxInputs];
-  int *idxOffset;
+  int idxMul[funcMaxInputs];	// sample array index multipliers
   double *samples;		// the samples
   int nSamples;			// size of the samples array
   double *sBuf;			// buffer for the transform function
-  double cacheIn[funcMaxInputs];
-  double cacheOut[funcMaxOutputs];
   GBool ok;
 };
 
@@ -173,7 +171,7 @@ private:
 class StitchingFunction: public Function {
 public:
 
-  StitchingFunction(Object *funcObj, Dict *dict, int recursion);
+  StitchingFunction(Object *funcObj, Dict *dict);
   virtual ~StitchingFunction();
   virtual Function *copy() { return new StitchingFunction(this); }
   virtual int getType() { return 3; }
@@ -225,8 +223,6 @@ private:
   GString *codeString;
   PSObject *code;
   int codeSize;
-  double cacheIn[funcMaxInputs];
-  double cacheOut[funcMaxOutputs];
   GBool ok;
 };
 

@@ -9,7 +9,6 @@
 #ifndef XPDFTREE_H
 #define XPDFTREE_H
 
-#include <aconf.h>
 #include <Xm/Xm.h>
 
 extern "C" {

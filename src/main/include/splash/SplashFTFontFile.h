@@ -31,17 +31,16 @@ public:
 
   static SplashFontFile *loadType1Font(SplashFTFontEngine *engineA,
 				       SplashFontFileID *idA, char *fileNameA,
-				       GBool deleteFileA, const char **encA);
+				       GBool deleteFileA, char **encA);
   static SplashFontFile *loadCIDFont(SplashFTFontEngine *engineA,
 				     SplashFontFileID *idA, char *fileNameA,
 				     GBool deleteFileA,
-				     int *codeToGIDA, int codeToGIDLenA);
+				     Gushort *codeToCIDA, int codeToGIDLenA);
   static SplashFontFile *loadTrueTypeFont(SplashFTFontEngine *engineA,
 					  SplashFontFileID *idA,
 					  char *fileNameA,
-					  int fontNum,
 					  GBool deleteFileA,
-					  int *codeToGIDA,
+					  Gushort *codeToGIDA,
 					  int codeToGIDLenA);
 
   virtual ~SplashFTFontFile();
@@ -57,15 +56,14 @@ private:
 		   SplashFontFileID *idA,
 		   char *fileNameA, GBool deleteFileA,
 		   FT_Face faceA,
-		   int *codeToGIDA, int codeToGIDLenA,
-		   GBool trueTypeA, GBool type1A);
+		   Gushort *codeToGIDA, int codeToGIDLenA,
+		   GBool trueTypeA);
 
   SplashFTFontEngine *engine;
   FT_Face face;
-  int *codeToGID;
+  Gushort *codeToGID;
   int codeToGIDLen;
   GBool trueType;
-  GBool type1;
 
   friend class SplashFTFont;
 };
