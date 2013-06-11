@@ -30,7 +30,7 @@ void TextCollector::append(const char* text, int len) {
 	object->GetJNIEnv()->DeleteLocalRef(data);
 }
 
-void TextCollector::CollectText(void *stream, const char *text, int len) {
+void TextCollector::CollectText(void *stream, char *text, int len) {
 	((TextCollector *) stream)->append(text, len);
 }
 

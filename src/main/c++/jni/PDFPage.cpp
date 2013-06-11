@@ -1,6 +1,7 @@
 #include <iostream>
 #include <jni.h>
 #include "Page.h"
+#include "PDFDoc.h"
 #include "Catalog.h"
 #include "TextOutputDev.h"
 #include "Handle.h"
@@ -14,15 +15,18 @@ JNIEXPORT jint JNICALL Java_com_foolabs_xpdf_PDFPage__1getNumber(
 }
 
 JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage__1getText
-	  (JNIEnv *env, jobject obj, jobject javaCollector, jboolean physicalLayout, jdouble fixedPitch, jboolean rawOrder) {
+	  (JNIEnv *env, jobject obj, jobject document, jobject javaCollector,
+			  jboolean physicalLayout, jdouble fixedPitch, jboolean rawOrder) {
 	Page *page = getHandle<Page>(env, obj);
+	PDFDoc *doc = getHandle<PDFDoc>(env, document);
+
 	TextCollector *collector = new TextCollector(env, javaCollector);
 
 	GBool gPhysicalLayout = physicalLayout ? gTrue : gFalse;
 	GBool gRawOrder = rawOrder ? gTrue : gFalse;
 
-	TextOutputDev *outputDevice = new TextOutputDev(&TextCollector::CollectText,
-			collector, gPhysicalLayout, fixedPitch, gRawOrder);
+	TextOutputDev *outputDevice =
+			new TextOutputDev(&TextCollector::CollectText, collector, gPhysicalLayout, gRawOrder);
 
 	if (outputDevice->isOk()) {
 		const double hDPI = 72;
@@ -31,7 +35,7 @@ JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFPage__1getText
 		const GBool useMediaBox = gFalse;
 		const GBool crop = gTrue;
 		const GBool printing = gFalse;
-		Catalog *catalog = NULL;
+		Catalog *catalog = doc->getCatalog();
 
 		page->display(outputDevice, hDPI, vDPI, rotate, useMediaBox, crop,
 				printing, catalog);

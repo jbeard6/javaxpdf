@@ -5,13 +5,13 @@
 #include "Handle.h"
 #include "PDFDocument.h"
 
-jobject createPdfPage(JNIEnv *env, Page *page) {
+jobject createPdfPage(JNIEnv *env, jobject jDocument, Page *page) {
 	jclass pdfPageClass = env->FindClass("com/foolabs/xpdf/PDFPage");
-	jmethodID constructor = env->GetMethodID(pdfPageClass, "<init>", "(J)V");
+	jmethodID constructor = env->GetMethodID(pdfPageClass, "<init>", "(Lcom/foolabs/xpdf/PDFDocument;J)V");
 
 	jlong _handle = getHandleFor<Page>(page);
 
-	return env->NewObject(pdfPageClass, constructor, _handle);
+	return env->NewObject(pdfPageClass, constructor, jDocument, _handle);
 }
 
 JNIEXPORT jlong JNICALL Java_com_foolabs_xpdf_PDFDocument__1createInstance
@@ -52,7 +52,7 @@ JNIEXPORT jobject JNICALL Java_com_foolabs_xpdf_PDFDocument__1getPage
 	PDFDoc *doc = getHandle<PDFDoc>(env, obj);
 	Page *page = doc->getCatalog()->getPage(pageNumber);
 
-	return createPdfPage(env, page);
+	return createPdfPage(env, obj, page);
 }
 
 JNIEXPORT void JNICALL Java_com_foolabs_xpdf_PDFDocument_finalize

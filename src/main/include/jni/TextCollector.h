@@ -18,7 +18,7 @@ public:
 
 	void append(const char *text, int len);
 
-	static void CollectText(void *stream, const char *text, int len);
+	static void CollectText(void *stream, char *text, int len);
 
 private:
 	JavaObjectWrapper *object;
