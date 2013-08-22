@@ -65,7 +65,7 @@
     <target name="goo" depends="init" description="Builds the Goo static library.">
     	<mkdir dir="${build.output.objs}/goo" />
     	
-    	<cpptasks:cc outfile="${build.output.lib}/Goo" outtype="static" debug="${build.debug}" objdir="${build.output.objs}/goo">
+    	<cpptasks:cc outfile="${build.output.lib}/Goo" outtype="static" objdir="${build.output.objs}/goo" debug="${build.debug}" warnings="none">
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<compilerarg value="-fPIC" />
@@ -88,7 +88,7 @@
     <target name="fofi" depends="goo" description="Builds the fofi static library.">
         <mkdir dir="${build.output.objs}/fofi" />
     	
-    	<cpptasks:cc outfile="${build.output.lib}/fofi" outtype="static" debug="${build.debug}" objdir="${build.output.objs}/fofi">
+    	<cpptasks:cc outfile="${build.output.lib}/fofi" outtype="static" objdir="${build.output.objs}/fofi" debug="${build.debug}" warnings="none">
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
@@ -110,7 +110,7 @@
     <target name="splash" depends="goo,fofi" description="Builds the splash static library.">
         <mkdir dir="${build.output.objs}/splash" />
     	
-    	<cpptasks:cc outfile="${build.output.lib}/splash" outtype="static" debug="${build.debug}" objdir="${build.output.objs}/splash">
+    	<cpptasks:cc outfile="${build.output.lib}/splash" outtype="static" objdir="${build.output.objs}/splash" debug="${build.debug}" warnings="none">
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
@@ -146,7 +146,7 @@
     <target name="libxpdf" depends="goo,fofi,splash" description="Builds the xpdf static library.">
         <mkdir dir="${build.output.objs}/xpdf" />
     	
-    	<cpptasks:cc outfile="${build.output.lib}/xpdf" outtype="static" debug="${build.debug}" objdir="${build.output.objs}/xpdf">
+    	<cpptasks:cc outfile="${build.output.lib}/xpdf" outtype="static" objdir="${build.output.objs}/xpdf" debug="${build.debug}" warnings="none">
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
