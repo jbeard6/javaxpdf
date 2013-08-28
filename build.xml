@@ -7,11 +7,10 @@
      ====================================================================== -->
 <project name="xpdf-jni" default="all"
 	xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks"
-	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+    xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+    xmlns:contrib="antlib:net.sf.antcontrib">
 
-    <description>
-            JNI bindings for the Xpdf project
-    </description>
+    <description>JNI bindings for the Xpdf project.</description>
 	
 	<property name="build.debug" value="true" />
 	<property name="build.output.dir" location="target" />
@@ -20,6 +19,7 @@
 	<property name="build.output.lib" location="${build.output.dir}/lib" />
 	<property name="build.output.bin" location="${build.output.dir}/bin" />
 	<property name="build.output.classes" location="${build.output.dir}/classes" />
+	<property name="build.output.archive" location="${build.output.dir}/archive" />
 
 	<property name="xpdf.groupId" value="com.foolabs.xpdf" />
 	<property name="xpdf.version" value="3.0.2" />
@@ -32,12 +32,14 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="java,jni,jar,utils" description="JNI bindings for the Xpdf project" />
+    <target name="all" description="JNI bindings for the Xpdf project"
+			depends="java,jni,jar,utils" />
 
 	<!-- ================================= 
           target: utils              
          ================================= -->
-    <target name="utils" depends="pdftops,pdftotext,pdfinfo,pdffonts,pdfdetach,pdfimages,pdftoppm,xpdf" description="Builds the executables." />
+    <target name="utils" description="Builds the executables."
+			depends="pdftops,pdftotext,pdfinfo,pdffonts,pdfdetach,pdfimages,pdftoppm,xpdf" />
 	
 	
     <!-- - - - - - - - - - - - - - - - - - 
@@ -45,30 +47,98 @@
          - - - - - - - - - - - - - - - - - -->
     <target name="init">
     	<mkdir dir="${build.output.lib}" />
-    	<mkdir dir="${build.output.bin}" />
+        <mkdir dir="${build.output.bin}" />
+    	<mkdir dir="${build.output.archive}" />
+
     	
-    	<available property="java.include" file="${java.home}/include" type="dir" value="${java.home}/include" />
-    	<available property="java.include" file="${java.home}/../include" type="dir" value="${java.home}/../include" />
-    	
-    	<condition property="java.platform" value="win32">
+    	<condition property="win32" value="true">
     		<os family="windows" />
     	</condition>
-    	<condition property="java.platform" value="darwin">
-    		<os family="mac"/>
+    	<condition property="macosx" value="true">
+    		<os family="mac" name="Mac OS X" />
+        </condition>
+        <condition property="linux" value="true">
+            <os name="Linux" />
+        </condition>
+
+
+        <condition property="os.arch.32bit" value="true">
+            <or>
+                <os arch="x86" />
+                <os arch="i386" />
+            </or>
+        </condition>
+        <condition property="os.arch.64bit" value="true">
+            <or>
+                <os arch="amd64" />
+                <os arch="x86_64" />
+            </or>
+        </condition>
+    	<condition property="os.name.simple" value="macosx">
+    		<and>
+    			<os family="mac" />
+    			<os family="unix" />
+    		</and>
     	</condition>
-    	<property name="java.platform" value="linux" />
+    	<property name="os.name.simple" value="${os.name}" />
+
+
+    	<available property="java.include" file="${java.home}/include" type="dir" value="${java.home}/include" />
+    	<available property="java.include" file="${java.home}/../include" type="dir" value="${java.home}/../include" />
+
+        <cpptasks:compiler id="gcc-windows" name="gcc">
+            <cpptasks:sysincludepath path="${java.include}" />
+            <cpptasks:sysincludepath path="${java.include}/win32" />
+            <cpptasks:compilerarg value="-m32" if="os.arch.32bit" />
+            <cpptasks:compilerarg value="-m64" if="os.arch.64bit" />
+            <cpptasks:compilerarg value="-mwindows" />
+        </cpptasks:compiler>
+
+        <cpptasks:compiler id="gcc-macosx" name="gcc">
+            <cpptasks:sysincludepath path="${java.include}" />
+            <cpptasks:compilerarg value="-mmacosx-version-min=10.3" if="os.arch.32bit" />
+            <cpptasks:compilerarg value="-mmacosx-version-min=10.4" if="os.arch.64bit" />
+            <cpptasks:compilerarg value="-arch" />
+            <cpptasks:compilerarg value="i386" />
+            <cpptasks:compilerarg value="-arch" />
+            <cpptasks:compilerarg value="ppc" if="os.arch.32bit" />
+            <cpptasks:compilerarg value="x86_64" if="os.arch.64bit" />
+        </cpptasks:compiler>
+
+        <cpptasks:compiler id="gcc-linux" name="gcc">
+            <cpptasks:sysincludepath path="${java.include}" />
+            <cpptasks:sysincludepath path="${java.include}/linux" />
+            <cpptasks:compilerarg value="-m32" if="os.arch.32bit" />
+            <cpptasks:compilerarg value="-m64" if="os.arch.64bit" />
+        </cpptasks:compiler>
     </target>
 	
+	
+	<!-- ================================= 
+          target: java              
+         ================================= -->
+    <target name="java" depends="init" description="Java Classes">
+    	<mkdir dir="${build.output.classes}" />
+        <javac srcdir="src/main/java" destdir="${build.output.classes}" includeAntRuntime="false" debug="on" />
+    </target>
+	
+
 	<!-- ================================= 
           target: goo              
          ================================= -->
     <target name="goo" depends="init" description="Builds the Goo static library.">
     	<mkdir dir="${build.output.objs}/goo" />
     	
-    	<cpptasks:cc outfile="${build.output.lib}/Goo" outtype="static" objdir="${build.output.objs}/goo" debug="${build.debug}" warnings="none">
+    	<cpptasks:cc outfile="${build.output.lib}/Goo" outtype="static"
+    			objdir="${build.output.objs}/goo" debug="${build.debug}" warnings="none">
+    		<cpptasks:compiler refid="gcc-windows" if="win32" />
+            <cpptasks:compiler refid="gcc-macosx" if="macosx" />
+            <cpptasks:compiler refid="gcc-linux" if="linux" />
+        	<compilerarg value="-fPIC" />
+    		
     		<cpptasks:includepath path="src/main/include/autoconf" />
-    		<cpptasks:includepath path="src/main/include/goo" />
-    		<compilerarg value="-fPIC" />
+            <cpptasks:includepath path="src/main/include/goo" />
+    		
     		<fileset dir="src/main/c++/goo">
     			<include name="GHash.cc" />
     			<include name="GList.cc" />
@@ -85,14 +155,19 @@
 	<!-- ================================= 
           target: fofi              
          ================================= -->
-    <target name="fofi" depends="goo" description="Builds the fofi static library.">
+    <target name="fofi" depends="init,goo" description="Builds the fofi static library.">
         <mkdir dir="${build.output.objs}/fofi" />
     	
     	<cpptasks:cc outfile="${build.output.lib}/fofi" outtype="static" objdir="${build.output.objs}/fofi" debug="${build.debug}" warnings="none">
+            <cpptasks:compiler refid="gcc-windows" if="win32" />
+            <cpptasks:compiler refid="gcc-macosx" if="macosx" />
+            <cpptasks:compiler refid="gcc-linux" if="linux" />
+        	<compilerarg value="-fPIC" />
+    		
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
-    		<compilerarg value="-fPIC" />
+    		
     		<fileset dir="src/main/c++/fofi">
     			<include name="FoFiBase.cc" />
     			<include name="FoFiEncodings.cc" />
@@ -107,15 +182,20 @@
 	<!-- ================================= 
           target: splash              
          ================================= -->
-    <target name="splash" depends="goo,fofi" description="Builds the splash static library.">
+    <target name="splash" depends="init,goo,fofi" description="Builds the splash static library.">
         <mkdir dir="${build.output.objs}/splash" />
     	
     	<cpptasks:cc outfile="${build.output.lib}/splash" outtype="static" objdir="${build.output.objs}/splash" debug="${build.debug}" warnings="none">
+            <cpptasks:compiler refid="gcc-windows" if="win32" />
+            <cpptasks:compiler refid="gcc-macosx" if="macosx" />
+            <cpptasks:compiler refid="gcc-linux" if="linux" />
+        	<compilerarg value="-fPIC" />
+    		
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
-    		<compilerarg value="-fPIC" />
+    		
     		<fileset dir="src/main/c++/splash">
 				<include name="Splash.cc" />
 				<include name="SplashBitmap.cc" />
@@ -147,12 +227,17 @@
         <mkdir dir="${build.output.objs}/xpdf" />
     	
     	<cpptasks:cc outfile="${build.output.lib}/xpdf" outtype="static" objdir="${build.output.objs}/xpdf" debug="${build.debug}" warnings="none">
+            <cpptasks:compiler refid="gcc-windows" if="win32" />
+            <cpptasks:compiler refid="gcc-macosx" if="macosx" />
+            <cpptasks:compiler refid="gcc-linux" if="linux" />
+        	<compilerarg value="-fPIC" />
+			
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
     		<cpptasks:includepath path="src/main/include/splash" />
     		<cpptasks:includepath path="src/main/include/xpdf" />
-    		<compilerarg value="-fPIC" />
+    		
     		<fileset dir="src/main/c++/xpdf">
 				<include name="Annot.cc" />
 				<include name="Array.cc" />
@@ -205,8 +290,8 @@
     		</fileset>
     	</cpptasks:cc>
     </target>
-	
-	
+
+
 	<!-- ================================= 
           target: jni-headers              
          ================================= -->
@@ -214,22 +299,33 @@
 		<mkdir dir="${build.output.include}" />
 		<mkdir dir="${build.output.include}/jni" />
 
-		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.GlobalParameters" outputFile="${build.output.include}/jni/GlobalParameters.h" />
-		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFDocument" outputFile="${build.output.include}/jni/PDFDocument.h" />
-		<javah classpath="${build.output.classes}" class="com.foolabs.xpdf.PDFPage" outputFile="${build.output.include}/jni/PDFPage.h" />
+        <javah classpath="${build.output.classes}"
+            class="com.foolabs.xpdf.GlobalParameters" outputFile="${build.output.include}/jni/GlobalParameters.h" />
+        <javah classpath="${build.output.classes}"
+            class="com.foolabs.xpdf.PDFDocument" outputFile="${build.output.include}/jni/PDFDocument.h" />
+        <javah classpath="${build.output.classes}"
+            class="com.foolabs.xpdf.PDFPage" outputFile="${build.output.include}/jni/PDFPage.h" />
 	</target>
 
 
 	<!-- ================================= 
           target: jni              
          ================================= -->
-    <target name="jni" depends="goo,fofi,splash,libxpdf,jni-headers" description="Builds the JNI library.">
+    <target name="jni" depends="init,goo,fofi,splash,libxpdf,jni-headers" description="Builds the JNI library.">
         <mkdir dir="${build.output.objs}/jni" />
     	
     	<echo level="debug">java.home=${java.home}</echo>
     	<echo level="debug">-I${java.home}/include -I${java.home}/include/${java.platform}</echo>
     	
-    	<cpptasks:cc outfile="${build.output.lib}/xpdf-jni" outtype="shared" debug="${build.debug}" objdir="${build.output.objs}/jni">
+        <cpptasks:cc outfile="${build.output.lib}/xpdf-jni" outtype="shared"
+            outputfileproperty="build.output.lib.xpdf-jni"
+            objdir="${build.output.objs}/jni"
+            debug="${build.debug}">
+            <cpptasks:compiler refid="gcc-windows" if="win32" />
+            <cpptasks:compiler refid="gcc-macosx" if="macosx" />
+            <cpptasks:compiler refid="gcc-linux" if="linux" />
+    		<compilerarg value="-fPIC" />
+        	
     		<cpptasks:includepath path="src/main/include/autoconf" />
     		<cpptasks:includepath path="src/main/include/goo" />
     		<cpptasks:includepath path="src/main/include/fofi" />
@@ -237,12 +333,12 @@
     		<cpptasks:includepath path="src/main/include/xpdf" />
     		<cpptasks:includepath path="src/main/include/jni" />
 			<cpptasks:includepath path="${build.output.include}/jni" />
-    		<cpptasks:sysincludepath path="${java.include}" />
-    		<cpptasks:sysincludepath path="${java.include}/${java.platform}" />
-    		<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
-    		<cpptasks:syslibset libs="m,stdc++" />
-    		<compilerarg value="-fPIC" />
-    		<fileset dir="src/main/c++/jni">
+    		
+        	<cpptasks:libset dir="${build.output.lib}" libs="xpdf,splash,fofi,Goo" />
+        	<cpptasks:syslibset libs="m,stdc++" />
+    		
+    		
+        	<fileset dir="src/main/c++/jni">
     			<include name="Handle.cpp" />
     			<include name="JavaObjectWrapper.cpp" />
     			<include name="GlobalParameters.cpp" />
@@ -250,23 +346,22 @@
     			<include name="PDFPage.cpp" />
     			<include name="TextCollector.cpp" />
     		</fileset>
-    	</cpptasks:cc>
+        </cpptasks:cc>
+    	
+    	<mkdir dir="${build.output.archive}/META-INF/lib/${os.name}" />
+    	<copy	file="${build.output.lib.xpdf-jni}"
+    			tofile="${build.output.archive}/META-INF/lib/${os.name}/Xpdf-${os.arch}.bin" />
     </target>
 	
-	<!-- ================================= 
-          target: java              
-         ================================= -->
-    <target name="java" depends="init" description="Java Classes">
-    	<mkdir dir="${build.output.classes}" />
-        <javac srcdir="src/main/java" destdir="${build.output.classes}" debug="on" />
-    </target>
-
-
+	
 	<!-- ================================= 
           target: jar
          ================================= -->
     <target name="jar" depends="java" description="Construct Java Archive">
 		<jar destfile="${build.output.dir}/javaxpdf.jar">
+			<fileset dir="${build.output.archive}">
+				<exclude name="META-INF/lib" /> <!-- Only used for native-jar. -->
+			</fileset>
 			<fileset dir="${build.output.classes}" />
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
@@ -280,24 +375,35 @@
 	</target>
 
 
-	<!-- - - - - - - - - - - - - - - - - -
-		 target: init-maven
-		 - - - - - - - - - - - - - - - - - -->
-	<target name="init-maven" depends="init">
-		<artifact:pom id="javaxpdf-pom" file="pom.xml" />
+	<!-- ================================= 
+          target: native-jar
+         ================================= -->
+    <target name="native-jar" depends="java,jni" description="Construct Java Archive (with native library)">
+		<jar destfile="${build.output.dir}/javaxpdf-${os.name.simple}-${os.arch}.jar">
+			<fileset dir="${build.output.archive}" />
+			<fileset dir="${build.output.classes}" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<section name="xpdf">
+					<attribute name="Implementation-Title" value="xpdf" />
+					<attribute name="Implementation-Version" value="${xpdf.version}" />
+					<attribute name="Implementation-Vendor" value="${xpdf.vendor}" />
+				</section>
+			</manifest>
+		</jar>
 	</target>
+
 
 	<!-- =================================
 		 target: install
 		 ================================= -->
-	<target name="install" depends="install-jar,install-utils" description="Install" />
-
-	<!-- =================================
-		 target: install-jar
-		 ================================= -->
-	<target name="install-jar" depends="jar,init-maven" description="Install JAR to local repository.">
+	<target name="install" depends="jar,native-jar" description="Install JAR to local repository.">
+        <!--<contrib:propertyregex property="build.output.lib.xpdf-jni.ext" override="true"
+            input="${build.output.lib.xpdf-jni}" regexp="\.([^\.]+)$" select="\1" />-->
+		
 		<artifact:install file="${build.output.dir}/javaxpdf.jar">
 			<artifact:pom file="pom.xml" />
+			<artifact:attach file="${build.output.dir}/javaxpdf-${os.name.simple}-${os.arch}.jar" classifier="${os.name.simple}-${os.arch}" />
 		</artifact:install>
 	</target>
 
@@ -306,7 +412,20 @@
 		 ================================= -->
 	<target name="install-utils" depends="utils" description="Install binaries.">
 		<fail message="Not yet implemented." />
-	</target>
+    </target>
+
+	<!-- =================================
+		 target: deploy
+		 ================================= -->
+    <target name="deploy" depends="jni,jar" description="Deploy to Maven Repository">
+        <artifact:deploy>
+            <artifact:pom file="pom.xml" />
+            <artifact:attach file="${build.output.dir}/javaxpdf.jar" type="jar" />
+            <artifact:attach file="${build.output.lib.xpdf-jni}" type="lib" classifier="${os.name}-${os.arch}" />
+            <artifact:remoteRepository id="snapshots" url="${snapshotsRepoUrl}" />
+        </artifact:deploy>
+		<fail message="Not yet implemented." />
+    </target>
 
 	
 	<!-- ================================= 

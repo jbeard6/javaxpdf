@@ -21,8 +21,11 @@ public final class PDFDocument {
      * @param file the PDF file
      * @return the new instance
      * @throws InstantiationException if Xpdf does not correctly initialize the document
+     * @throws IllegalStateException if {@link Xpdf} is not {@link Xpdf#isAvailable() available}
      */
     public static PDFDocument createInstance(File file) throws InstantiationException {
+        Xpdf.checkAvailable();
+
         String fileName = file.getAbsolutePath();
         long _handle = _createInstance(fileName);
 
