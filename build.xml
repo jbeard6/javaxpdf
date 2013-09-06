@@ -21,7 +21,6 @@
 	<property name="build.output.classes" location="${build.output.dir}/classes" />
 	<property name="build.output.archive" location="${build.output.dir}/archive" />
 
-	<property name="xpdf.groupId" value="com.foolabs.xpdf" />
 	<property name="xpdf.version" value="3.0.2" />
 	<property name="xpdf.vendor" value="Glyph &amp; Cog, LLC" />
 
@@ -111,6 +110,8 @@
             <cpptasks:compilerarg value="-m32" if="os.arch.32bit" />
             <cpptasks:compilerarg value="-m64" if="os.arch.64bit" />
         </cpptasks:compiler>
+    	
+    	<artifact:pom id="maven.project" file="pom.xml" />
     </target>
 	
 	
@@ -360,7 +361,7 @@
     <target name="jar" depends="java" description="Construct Java Archive">
 		<jar destfile="${build.output.dir}/javaxpdf.jar">
 			<fileset dir="${build.output.archive}">
-				<exclude name="META-INF/lib" /> <!-- Only used for native-jar. -->
+				<exclude name="META-INF/lib/**" /> <!-- Only used for native-jar. -->
 			</fileset>
 			<fileset dir="${build.output.classes}" />
 			<manifest>
@@ -417,14 +418,15 @@
 	<!-- =================================
 		 target: deploy
 		 ================================= -->
-    <target name="deploy" depends="jni,jar" description="Deploy to Maven Repository">
-        <artifact:deploy>
-            <artifact:pom file="pom.xml" />
-            <artifact:attach file="${build.output.dir}/javaxpdf.jar" type="jar" />
-            <artifact:attach file="${build.output.lib.xpdf-jni}" type="lib" classifier="${os.name}-${os.arch}" />
-            <artifact:remoteRepository id="snapshots" url="${snapshotsRepoUrl}" />
+    <target name="deploy" depends="jar,native-jar" description="Deploy to Maven Repository">
+    	<fail message="maven.project.distributionManagement.repository.id is required" unless="maven.project.distributionManagement.repository.id" />
+    	<fail message="maven.project.distributionManagement.repository.url is not set" unless="maven.project.distributionManagement.repository.url" />
+    	
+        <artifact:deploy file="${build.output.dir}/javaxpdf.jar">
+			<artifact:pom refid="maven.project" />
+			<artifact:attach file="${build.output.dir}/javaxpdf-${os.name.simple}-${os.arch}.jar" classifier="${os.name.simple}-${os.arch}" />
+            <artifact:remoteRepository id="${maven.project.distributionManagement.repository.id}" url="${maven.project.distributionManagement.repository.url}" />
         </artifact:deploy>
-		<fail message="Not yet implemented." />
     </target>
 
 	
