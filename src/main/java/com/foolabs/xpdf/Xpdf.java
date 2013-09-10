@@ -56,8 +56,8 @@ public class Xpdf {
         boolean avail = false;
         try {
             LOGGER.info("Attempting to load Xpdf...");
-            ClassLoader classLoader = Xpdf.class.getClassLoader();
 
+            ClassLoader classLoader = Xpdf.class.getClassLoader();
             /*
              * JNI code (native and Java) must all be loaded into the SAME ClassLoader (the usual parental hierarchy
              * doesn't apply). This is not typically an issue for standalone Java applications, but it can become hairy
@@ -74,15 +74,28 @@ public class Xpdf {
 
             avail = true;
             LOGGER.info("Xpdf loaded successfully!");
+
         } catch (LinkageError err) {
-            LOGGER.log(Level.INFO, "Xpdf (native) is not available!", err);
+            LOGGER.log(Level.FINE, "Failed to load native components", err);
+            LOGGER.info("Xpdf (native) is not available!");
             avail = false;
-        } catch (Exception ex) {
-            LOGGER.log(Level.INFO, "Xpdf is not available!", ex);
+
+        } catch (ClassNotFoundException ex) {
+            LOGGER.log(Level.WARNING, "Xpdf (Java) is not available! (This is weird.)", ex);
             avail = false;
+
         } finally {
             available = avail;
         }
+    }
+
+    /**
+     * Return the Xpdf {@link GlobalParameters}.
+     * 
+     * @return the Xpdf configuration object
+     */
+    public static GlobalParameters getConfiguration() {
+        return GlobalParameters.getInstance();
     }
 
     /**
